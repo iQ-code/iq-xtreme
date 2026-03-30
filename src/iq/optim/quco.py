@@ -20,7 +20,7 @@ def solve_QUCO(
     Q: NDArray[np.float64],
     k: int,
     random_number_generator_seed: int = 123321,
-    options: dict | None = None,
+    shots: int = 100,
     description: str = "",
 ) -> tuple[NDArray[np.int32], float]:
     """Solve a Quadratic Unconstrained Category Optimization (QUCO) problem.
@@ -50,11 +50,8 @@ def solve_QUCO(
         Must satisfy 2 <= k <= n - 1.
     random_number_generator_seed : int, default=123321
         Seed for the random number generator.
-    options : dict | None, default=None
-        Optimization hyperparameters. Accepted keys:
-
-        - copies : int, default=100
-            Number of stochastic trajectories to explore (between 1 and 500).
+    shots : int, default = 100
+        Number of stochastic trajectories to explore.
     description : str, default=""
         Descriptive name of the computation.
 
@@ -67,8 +64,7 @@ def solve_QUCO(
         Minimum value of the QUCO cost function.
 
     """
-    options = dict(options) if options is not None else {}
-    options["copies"] = validate.integer(options.get("copies", 100), 1, 500, b_return_repr=False)
+    options = {"copies": validate.integer(shots, 1, 500, b_return_repr=False)}
 
     r = iqrestapi.post(
         "v1/iq-xtreme/quco",
