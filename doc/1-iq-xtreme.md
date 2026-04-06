@@ -10,7 +10,7 @@
 | **QUDO** | Quadratic Unconstrained Digital Optimization | Non-negative integers |
 | **QUCO** | Quadratic Unconstrained Category Optimization | Category labels |
 | **CCQP** | Cardinality Constrained Quadratic Programming | Continuous + binary selection |
-| **TSP**  | Traveling Salesman Problem | Permutation (city ordering) |
+| **TSP**  | Traveling Salesman Problem (In progress) | Permutation (city ordering) |
 
 ---
 
@@ -220,6 +220,10 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/ccqp
 ---
 
 ## 1.6. TSP — Traveling Salesman Problem
+
+### Note
+
+This solver is still in progress. We are updating the algorithm that solves the TSP problem.
 
 ### Problem Definition
 
