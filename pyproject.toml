@@ -13,6 +13,8 @@ description = "Inspiration-Q iQ-Xtreme optimization API"
 readme = "README.md"
 dependencies = [
   "numpy",
+  "matplotlib",
+  "networkx",
   "requests"
 ]
 
