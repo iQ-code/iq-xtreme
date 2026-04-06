@@ -9,7 +9,7 @@
 | **QUBO** | Quadratic Unconstrained Binary Optimization | Binary (0/1) |
 | **QUDO** | Quadratic Unconstrained Digital Optimization | Non-negative integers |
 | **QUCO** | Quadratic Unconstrained Category Optimization | Category labels |
-| **MIQP** | Mixed Integer Quadratic Programming | Continuous + binary selection |
+| **CCQP** | Cardinality Constrained Quadratic Programming | Continuous + binary selection |
 | **TSP**  | Traveling Salesman Problem | Permutation (city ordering) |
 
 ---
@@ -155,11 +155,11 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/quco
 
 ---
 
-## 1.5. MIQP — Mixed Integer Quadratic Programming
+## 1.5. CCQP — Cardinality Constrained Quadratic Programming
 
 ### Problem Definition
 
-The MIQP solver addresses a cardinality-constrained quadratic program:
+The CCQP solver addresses a cardinality-constrained quadratic program:
 
 $$
 \min_{w} \quad \frac{1}{2} w^T P w + q^T w
@@ -182,12 +182,12 @@ This formulation naturally encodes portfolio construction (choose k assets with 
 
 | Function | Description |
 |----------|-------------|
-| `solve_MIQP` | Joint optimization of support and weights |
+| `solve_CCQP` | Joint optimization of support and weights |
 
 ### API Endpoint
 
 ```
-POST https://www.inspiration-q.com/api/v1/iq-xtreme/miqp
+POST https://www.inspiration-q.com/api/v1/iq-xtreme/ccqp
 ```
 
 ### Input Parameters

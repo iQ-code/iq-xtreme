@@ -1,4 +1,4 @@
-"""Mixed Integer Quadratic Programming (MIQP) solver."""
+"""Cardinality Constrained Quadratic Programming (CCQP) solver."""
 
 import numpy as np
 from numpy.typing import NDArray
@@ -6,15 +6,15 @@ from numpy.typing import NDArray
 from iq.api import iqrestapi, validate
 
 
-def _validate_MIQP_matrix(matrix: NDArray[np.float64], max_dimension: int) -> list[list[float]]:
-    """Validate and convert a MIQP matrix to list format."""
+def _validate_CCQP_matrix(matrix: NDArray[np.float64], max_dimension: int) -> list[list[float]]:
+    """Validate and convert a CCQP matrix to list format."""
     matrix = np.asarray(matrix)
     if matrix.ndim != 2 or matrix.shape[0] != matrix.shape[1] or matrix.shape[0] > max_dimension:
-        raise Exception("Not a valid MIQP matrix")
+        raise Exception("Not a valid CCQP matrix")
     if not np.allclose(matrix, matrix.T):
-        raise Exception("Not a valid MIQP matrix: it must be symmetric")
+        raise Exception("Not a valid CCQP matrix: it must be symmetric")
     if np.any(np.linalg.eigvalsh(matrix) < 1e-15):
-        raise Exception("Not a valid MIQP matrix: it must be positive definite")
+        raise Exception("Not a valid CCQP matrix: it must be positive definite")
     return matrix.tolist()
 
 
@@ -24,23 +24,23 @@ def _validate_matrix(
     """Validate and convert a matrix to list format."""
     matrix = np.asarray(matrix)
     if matrix.ndim != 2 or matrix.shape[0] > max_dimension0 or matrix.shape[1] > max_dimension1:
-        raise Exception("Not a valid MIQP matrix")
+        raise Exception("Not a valid CCQP matrix")
     return matrix.tolist()
 
 
-def _validate_MIQP_vector(
+def _validate_CCQP_vector(
     vector: NDArray[np.float64] | None, max_dimension: int
 ) -> list[float] | None:
-    """Validate and convert a MIQP vector to list format."""
+    """Validate and convert a CCQP vector to list format."""
     if vector is not None:
         vector = np.asarray(vector)
         if vector.ndim != 1 or vector.shape[0] > max_dimension:
-            raise Exception("Not a valid MIQP vector")
+            raise Exception("Not a valid CCQP vector")
         return vector.tolist()
     return None
 
 
-def solve_MIQP(
+def solve_CCQP(
     P: NDArray[np.float64],
     q: NDArray[np.float64],
     k: int,
@@ -56,9 +56,9 @@ def solve_MIQP(
     options: dict | None = None,
     description: str = "",
 ) -> tuple[NDArray[np.float64], float]:
-    """Solve a Mixed Integer Quadratic Programming (MIQP) problem.
+    """Solve a Cardinality Constrained Quadratic Programming (CCQP) problem.
 
-    The MIQP problem is a cardinality-constrained quadratic optimization:
+    The CCQP problem is a cardinality-constrained quadratic optimization:
 
         min_{w}   (1/2) w^T P w + q^T w
         with      w_i = n_i * x_i
@@ -127,15 +127,15 @@ def solve_MIQP(
     s : NDArray[np.float64]
         Optimal solution vector w. Exactly k elements are nonzero.
     E : float
-        Minimum value of the MIQP cost function (1/2) w^T P w + q^T w.
+        Minimum value of the CCQP cost function (1/2) w^T P w + q^T w.
 
     """
     if options is None:
         options = {}
 
     json_args = {
-        "P": _validate_MIQP_matrix(P, 2048),
-        "q": _validate_MIQP_vector(q, 2048),
+        "P": _validate_CCQP_matrix(P, 2048),
+        "q": _validate_CCQP_vector(q, 2048),
         "k": validate.integer(k, 1, np.asarray(P).shape[0]),
         "x_min": validate.real(x_min),
         "x_max": validate.real(x_max),
@@ -154,16 +154,16 @@ def solve_MIQP(
         json_args |= {"A": _validate_matrix(A, 2048, 2048)}
 
     if lb is not None:
-        json_args |= {"lb": _validate_MIQP_vector(lb, 2048)}
+        json_args |= {"lb": _validate_CCQP_vector(lb, 2048)}
 
     if ub is not None:
-        json_args |= {"ub": _validate_MIQP_vector(ub, 2048)}
+        json_args |= {"ub": _validate_CCQP_vector(ub, 2048)}
 
     if x0 is not None:
-        json_args |= {"x0": _validate_MIQP_vector(x0, 2048)}
+        json_args |= {"x0": _validate_CCQP_vector(x0, 2048)}
 
     r_post = iqrestapi.post(
-        "v1/iq-xtreme/miqp",
+        "v1/iq-xtreme/ccqp",
         json=json_args,
     )
     return r_post["solution"], r_post["cost"]

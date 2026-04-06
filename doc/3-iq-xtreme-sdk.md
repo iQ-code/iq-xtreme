@@ -158,12 +158,12 @@ print("Category assignments:", s, "  Cost:", cost)
 
 ---
 
-## 3.7. MIQP Example
+## 3.7. CCQP Example
 
 ```python
 import numpy as np
 import iq.api.iqrestapi
-import iq.optim.miqp
+import iq.optim.ccqp
 
 iq.api.iqrestapi.initialize_credentials("YOUR_API_KEY")
 
@@ -180,7 +180,7 @@ A = np.ones((1, n))
 lb = np.array([1.0])
 ub = np.array([1.0])
 
-w, cost = iq.optim.miqp.solve_MIQP(
+w, cost = iq.optim.ccqp.solve_CCQP(
     P, q, k=2,
     x_min=0.05, x_max=0.60,
     A=A, lb=lb, ub=ub,

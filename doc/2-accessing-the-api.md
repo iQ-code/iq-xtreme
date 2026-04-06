@@ -116,10 +116,10 @@ curl -X POST https://www.inspiration-q.com/api/v1/iq-xtreme/quco \
 }'
 ```
 
-### MIQP
+### CCQP
 
 ```sh
-curl -X POST https://www.inspiration-q.com/api/v1/iq-xtreme/miqp \
+curl -X POST https://www.inspiration-q.com/api/v1/iq-xtreme/ccqp \
      -H "Content-Type: application/json" \
      -H "Accept: application/json" \
      -H "Ocp-Apim-Subscription-Key: <your-api-key>" \
@@ -129,7 +129,7 @@ curl -X POST https://www.inspiration-q.com/api/v1/iq-xtreme/miqp \
   "k": 1,
   "x_min": 0.0,
   "x_max": 1.0,
-  "description": "Small MIQP example"
+  "description": "Small CCQP example"
 }'
 ```
 

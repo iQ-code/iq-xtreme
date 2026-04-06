@@ -21,7 +21,7 @@ All details are explained in the `doc/` folder:
 | `iq.optim.qubo` | QUBO | `v1/iq-xtreme/qubo` |
 | `iq.optim.qudo` | QUDO | `v1/iq-xtreme/qudo` |
 | `iq.optim.quco` | QUCO | `v1/iq-xtreme/quco` |
-| `iq.optim.miqp` | MIQP | `v1/iq-xtreme/miqp` |
+| `iq.optim.ccqp` | CCQP | `v1/iq-xtreme/ccqp` |
 | `iq.optim.tsp` | TSP | `v1/iq-xtreme/tsp` |
 
 ---

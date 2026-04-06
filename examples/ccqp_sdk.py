@@ -1,10 +1,10 @@
-"""MIQP solver example using the iQ-Xtreme SDK.
+"""CCQP solver example using the iQ-Xtreme SDK.
 
 This example builds a synthetic portfolio selection problem:
 select k=3 assets out of n=8 to minimize portfolio variance
 subject to a fully-invested constraint (weights sum to 1).
 
-The MIQP formulation is:
+The CCQP formulation is:
 
     min_w  (1/2) w^T P w + q^T w
     s.t.   sum_i w_i = 1            (full investment)
@@ -14,7 +14,7 @@ The MIQP formulation is:
 
 import numpy as np
 import iq.api.iqrestapi
-import iq.optim.miqp
+import iq.optim.ccqp
 
 iq.api.iqrestapi.initialize_credentials("YOUR_API_KEY")
 
@@ -38,7 +38,7 @@ A_constraint = np.ones((1, n))
 lb = np.array([1.0])
 ub = np.array([1.0])
 
-w, cost = iq.optim.miqp.solve_MIQP(
+w, cost = iq.optim.ccqp.solve_CCQP(
     P, q,
     k=3,
     x_min=0.05,
@@ -56,4 +56,4 @@ selected = np.where(w > 1e-6)[0]
 print("Selected asset indices:", selected)
 print("Portfolio weights:      ", np.round(w[selected], 4))
 print(f"Sum of weights:          {w.sum():.6f}")
-print(f"MIQP cost:               {cost:.6f}")
+print(f"CCQP cost:               {cost:.6f}")

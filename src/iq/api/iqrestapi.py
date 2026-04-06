@@ -133,6 +133,6 @@ _known_entry_points = [
     "v1/iq-xtreme/qubo",
     "v1/iq-xtreme/qudo",
     "v1/iq-xtreme/quco",
-    "v1/iq-xtreme/miqp",
+    "v1/iq-xtreme/ccqp",
     "v1/iq-xtreme/tsp",
 ]
