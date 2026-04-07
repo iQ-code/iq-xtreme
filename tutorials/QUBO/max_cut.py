@@ -44,14 +44,12 @@
 # ### iQ-Xtreme QUBO API
 
 # %%
-import numpy as np
-import matplotlib.pyplot as plt
-
-import networkx as nx
-from collections import defaultdict
-import random
-
 import warnings
+from collections import defaultdict
+
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
 
 warnings.filterwarnings("ignore")
 
@@ -213,7 +211,8 @@ x
 
 
 # %%
-def drawSolution(G, solutionArray):
+def draw_cut(G, solutionArray):
+    """Draw the graph with nodes colored by their partition in the max-cut solution."""
     pos = nx.circular_layout(G)
     color_map = []
     for node in solutionArray:
@@ -296,7 +295,8 @@ def random_graph(N, p=0.5, Jrange=1.0):
     """
     G = nx.gnp_random_graph(N, p, seed=None, directed=False)
     J = np.array(nx.to_numpy_array(G))
-    J = abs(J * np.random.randn(*J.shape) * Jrange)  # abs so that the weight is positive
+    rng = np.random.default_rng(123321)
+    J = abs(J * rng.standard_normal(J.shape) * Jrange)  # abs so that the weight is positive
     J = 0.5 * (J + J.T)
     G = nx.from_numpy_matrix(J, parallel_edges=False)
     return G

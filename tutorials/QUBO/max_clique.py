@@ -9,36 +9,31 @@
 #
 # A clique $C$ in an undirected graph $G = (V, E)$ is a subset of the vertex set such that for every two vertices in $C$ there exists an edge connecting the two. Our mission is to find a subgraph with maximum number of nodes in a clique. (Later on we will take a look at weighted Max Clique problem, which will introduce a parameter of the edges' weights)
 #
-# **1. Solving unweighted Max Clique Problem with iQ-Xtreme**
+# ## Content:*
+#
+# 1. Solving unweighted Max Clique Problem with iQ-Xtreme
+#
+#     * Creating a Random Graph
+#
+#     * QUBO Formulation of the Problem
+#
+#     * Solving the QUBO with iQ-Xtreme
+#
+#     * Visualizing Solution
+#
+#     * Comparison with NetworkX's solution
+#
+# 2. Solving Weighted Max Clique Problem Using iQ-Xtreme
 #
 # *Content:*
 #
-# > Creating a Random Graph
+#     * Creating a Weighted Random Graph
 #
-# > QUBO Formulation of the Problem
+#     * Qubo Formulation of the Problem
 #
-# > Solving the QUBO with iQ-Xtreme
+#     * Solving the QUBO problem with iQ-Xtreme
 #
-# > Visualizing Solution
-#
-# > Comparison with NetworkX's solution
-#
-# > Summary function
-#
-#
-# **2. Solving Weighted Max Clique Problem Using iQ-Xtreme**
-#
-# *Content:*
-#
-# > Creating a Weighted Random Graph
-#
-# > Qubo Formulation of the Problem
-#
-# > Solving the QUBO problem with iQ-Xtreme
-#
-# > Visualizing Solution
-#
-# > Summary function
+#     * Visualizing Solution
 #
 #
 
@@ -46,15 +41,12 @@
 # ### iQ-Xtreme QUBO API
 
 # %%
-import numpy as np
-import matplotlib.pyplot as plt
-
-import networkx as nx
-from networkx import make_max_clique_graph
-from networkx.algorithms.approximation import clique
-import random
-
 import warnings
+
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
+from networkx.algorithms.approximation import clique
 
 warnings.filterwarnings("ignore")
 
@@ -177,7 +169,8 @@ print("Check cost function:", -x_array.T @ Q @ x_array)
 
 # %%
 ## is it a clique? it must be a complete graph => number of edges=n(n-1)/2
-def check_solution(G, sol):
+def is_valid_clique(G, sol):
+    """Return True if the solution nodes form a valid clique in G."""
     clique_sol = G.subgraph(np.where(sol)[0])
     return (
         clique_sol.number_of_nodes() * (clique_sol.number_of_nodes() - 1) / 2
@@ -185,7 +178,7 @@ def check_solution(G, sol):
     )
 
 
-check_solution(G, x)
+is_valid_clique(G, x)
 
 # %% [markdown]
 # ### Visualizing solution
@@ -194,8 +187,8 @@ check_solution(G, x)
 
 
 # %%
-def drawSolution(G, solutionArray):
-
+def draw_clique(G, solutionArray):
+    """Draw the graph with clique nodes highlighted in blue."""
     pos = nx.circular_layout(G)
     color_map = []
     for node in solutionArray:
@@ -208,7 +201,7 @@ def drawSolution(G, solutionArray):
 
 
 # %%
-drawSolution(G, x)
+draw_clique(G, x)
 
 # %% [markdown]
 # ### Comparison with NetworkX
@@ -233,8 +226,8 @@ print("Max Clique size (NetowkX)", len(networkxSol))
 
 
 # %%
-def random_test_size(minimum_size=5, maximum_size=100, num_reads=100, lmbda=1):
-
+def benchmark_vs_networkx(minimum_size=5, maximum_size=100, num_reads=100, lmbda=1):
+    """Compare iQ-Xtreme and NetworkX max-clique solutions over random graphs."""
     s_iQ = 0
     s_networks = 0
     wrong = 0
@@ -244,7 +237,7 @@ def random_test_size(minimum_size=5, maximum_size=100, num_reads=100, lmbda=1):
         Q = maxclique_QUBO_matrix_from_graph(G, lmbda=lmbda)
 
         x, cost = iq.optim.qubo.solve_QUBO(Q, shots=num_reads)
-        if not check_solution(G, x):
+        if not is_valid_clique(G, x):
             wrong += 1
 
         networkxSol = clique.max_clique(G)
@@ -265,7 +258,7 @@ def random_test_size(minimum_size=5, maximum_size=100, num_reads=100, lmbda=1):
 
 
 # %%
-random_test_size(minimum_size=5, maximum_size=50, lmbda=1)
+benchmark_vs_networkx(minimum_size=5, maximum_size=50, lmbda=1)
 
 # %% [markdown]
 # We readily observe that iQ-Xtreme outperforms NetworkX!
@@ -280,7 +273,7 @@ random_test_size(minimum_size=5, maximum_size=50, lmbda=1)
 def maxclique_graph_solution(G):
     Q = maxclique_QUBO_matrix_from_graph(G)
     x, cost = iq.optim.qubo.solve_QUBO(Q)
-    drawSolution(G, x)
+    draw_clique(G, x)
     return x
 
 
@@ -319,7 +312,8 @@ def random_graph(N, p=0.5, Jrange=1.0):
     """
     G = nx.gnp_random_graph(N, p, seed=None, directed=False)
     J = np.array(nx.to_numpy_array(G))
-    J = abs(J * np.random.randn(*J.shape) * Jrange)  # abs so that the weight is positive
+    rng = np.random.default_rng(123321)
+    J = abs(J * rng.standard_normal(J.shape) * Jrange)  # abs so that the weight is positive
     J = 0.5 * (J + J.T)
     G = nx.from_numpy_matrix(J, parallel_edges=False)
     return G
@@ -384,7 +378,8 @@ print("Check cost function:", -x_array.T @ Q @ x_array)
 
 
 # %%
-def drawSolutionWeighted(G, solutionArray, weights):
+def draw_weighted_clique(G, solutionArray, weights):
+    """Draw the graph with edge widths proportional to weights and clique nodes highlighted."""
     pos = nx.circular_layout(G)
     color_map = []
     for node in solutionArray:
@@ -399,7 +394,7 @@ def drawSolutionWeighted(G, solutionArray, weights):
 
 
 # %%
-drawSolutionWeighted(G, x, weights)
+draw_weighted_clique(G, x, weights)
 
 # %% [markdown]
 # ### Summary function.
@@ -412,7 +407,7 @@ def weighted_maxclique_graph_solution(G):
     weights = nx.get_edge_attributes(G, "weight").values()
     Q = weighted_maxclique_QUBO_matrix_from_graph(G)
     x, cost = iq.optim.qubo.solve_QUBO(Q)
-    drawSolutionWeighted(G, x, weights)
+    draw_weighted_clique(G, x, weights)
     return x
 
 

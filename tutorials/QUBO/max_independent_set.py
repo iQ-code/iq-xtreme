@@ -9,53 +9,42 @@
 #
 # The Maximum Independent Set (MIS) problem in graph theory is the task of finding the largest independent set in a graph, where an independent set is a set of vertices such that no two vertices are adjacent.
 #
-# **1. Solving unweighted Max Independent Set Problem Using iQ-Xtreme**
+# ## Content
 #
-# *Content:*
+# 1. Solving unweighted Max Independent Set Problem Using iQ-Xtreme
 #
-# > Creating a Random Graph
+#     * Creating a Random Graph
 #
-# > QUBO Formulation of the Problem
+#     * QUBO Formulation of the Problem
 #
-# > Solving the QUBO with iQ-Xtreme
+#     * Solving the QUBO with iQ-Xtreme
 #
-# > Visualizing Solution
+#     * Visualizing Solution
 #
-# > Comparison with NetworkX's solution
+#     * Comparison with NetworkX's solution
 #
-# > Summary function
+# 2. Solving Weighted Max Independent Set Problem Using iQ-Xtreme**
 #
+#     * Creating a Weighted Random Graph
 #
+#     * QUBO Formulation of the Problem
 #
+#     * Solving the QUBO iQ-Xtreme
 #
-# **2. Solving Weighted Max Independent Set Problem Using iQ-Xtreme**
-#
-# *Content:*
-#
-# > Creating a Weighted Random Graph
-#
-# > QUBO Formulation of the Problem
-#
-# > Solving the QUBO iQ-Xtreme
-#
-# > Visualizing Solution
-#
-# > Summary function
+#     * Visualizing Solution
 
 # %% [markdown]
 # ### iQ-Xtreme QUBO API
 
 # %%
-import numpy as np
-import matplotlib.pyplot as plt
-
-import networkx as nx
-from networkx.algorithms.approximation import maximum_independent_set
-from networkx.algorithms.approximation import clique
-from collections import defaultdict
-import random
 
 import warnings
+from collections import defaultdict
+
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
+from networkx.algorithms.approximation import maximum_independent_set
 
 warnings.filterwarnings("ignore")
 
@@ -144,6 +133,7 @@ Q_matrix = Adj_matrix * (λ / 2)
 for i in range(problem_size):
     Q_matrix[i, i] = -1
 
+
 # %%
 def maxindset_QUBO_matrix_from_graph(G, lmbda=None):
     Adj_matrix = np.array(nx.to_numpy_array(G))
@@ -199,7 +189,6 @@ drawSolution(G, x)
 
 # %%
 def random_test_size(minimum_size=5, maximum_size=100, num_reads=10, lmbda=None):
-
     list_s_iQ = []
     list_indset_networkx = []
 
@@ -282,9 +271,10 @@ maxindset_graph_solution(G)
 # %%
 n = 8
 G = nx.gnp_random_graph(n, 0.5, seed=None, directed=False)  # random graph of size i
+rng = np.random.default_rng(123321)
 weights = list()
 for i in range(n):
-    weights.append(round(random.uniform(0, 1), 2))  # random weights for all the vertices
+    weights.append(round(rng.uniform(0, 1), 2))  # random weights for all the vertices
 
 # %% [markdown]
 # ### Qubo Formulation of the Problem
@@ -304,6 +294,7 @@ Q_matrix = Adj_matrix
 # quadratic terms
 for i in range(problem_size):
     Q_matrix[i, i] = -1 * weights[i]
+
 
 # %%
 def maxindsetWeighted_QUBO_matrix_from_graph(G, weights):

@@ -7,24 +7,22 @@
 #
 # ---
 #
-# *Content:*
+# ## Content
 #
-# > A transportation problem
+# * A transportation problem
 #
-# > Modelling the problem as QUDO
+# * Modelling the problem as QUDO
 #
-# > Solving the transportation problem with iQ-Xtreme
+# * Solving the transportation problem with iQ-Xtreme
 #
-# > Visualizing Solution
+# * Visualizing Solution
 
 # %%
-import numpy as np
-import networkx as nx
-
-import time
-import matplotlib.pyplot as plt
-import matplotlib.colors as colors
 import warnings
+
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
@@ -53,9 +51,9 @@ iq.api.iqrestapi.initialize_credentials("YOUR_API_KEY")
 #
 # Additionally, we must fulfill the following constraints.
 #
-# $$\sum_{i = 1, \dots, M} x_{i j} = D_j $$
+# * $$\sum_{i = 1, \dots, M} x_{i j} = D_j $$
 #
-# $$\sum_{j = 1 \dots,  N} x_{i j} = S_i $$
+# * $$\sum_{j = 1 \dots,  N} x_{i j} = S_i $$
 #
 # which requires that $\sum_i S_i = \sum_j D_j$. The more general case $\sum_i S_i \geq \sum_j D_j$ is also possible, but it involves introducing a slack variable to account for the extra demmand - the optimization problem would be solved along the same lines, anyways.
 #
@@ -193,9 +191,7 @@ nmin = np.zeros(dim, np.int32)
 nmax = (max(S) + 2) * np.ones(dim, np.int32)
 
 # %%
-n_opt, obj_opt = iq.optim.qudo.solve_QUDO(
-    matrix=Q, vector=b, min_n=nmin, max_n=nmax, steps=2000
-)
+n_opt, obj_opt = iq.optim.qudo.solve_QUDO(matrix=Q, vector=b, min_n=nmin, max_n=nmax, steps=2000)
 print("solution", n_opt)
 print("cost function", obj_opt)
 
