@@ -14,12 +14,14 @@ import iq.optim.qudo
 iq.api.iqrestapi.initialize_credentials("YOUR_API_KEY")
 
 # --- Define a 3-variable QUDO problem ---
-Q = np.array([
-    [ 4.0, -1.0,  0.5],
-    [-1.0,  3.0, -0.5],
-    [ 0.5, -0.5,  2.0],
-])
-v = np.array([-2.0, -1.0, -3.0])   # linear term
+Q = np.array(
+    [
+        [4.0, -1.0, 0.5],
+        [-1.0, 3.0, -0.5],
+        [0.5, -0.5, 2.0],
+    ]
+)
+v = np.array([-2.0, -1.0, -3.0])  # linear term
 
 min_n = np.array([0.0, 0.0, 0.0])
 max_n = np.array([5.0, 5.0, 5.0])

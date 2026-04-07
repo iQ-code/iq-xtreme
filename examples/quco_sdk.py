@@ -20,17 +20,20 @@ iq.api.iqrestapi.initialize_credentials("YOUR_API_KEY")
 # 6-node graph with edge weights
 # Nodes {0,1,2} form one natural cluster; {3,4,5} form another;
 # some cross-cluster edges exist.
-Q = np.array([
-    [0.0, 2.0, 2.0, 0.1, 0.1, 0.0],
-    [2.0, 0.0, 2.0, 0.1, 0.0, 0.1],
-    [2.0, 2.0, 0.0, 0.0, 0.1, 0.1],
-    [0.1, 0.1, 0.0, 0.0, 2.0, 2.0],
-    [0.1, 0.0, 0.1, 2.0, 0.0, 2.0],
-    [0.0, 0.1, 0.1, 2.0, 2.0, 0.0],
-], dtype=float)
+Q = np.array(
+    [
+        [0.0, 2.0, 2.0, 0.1, 0.1, 0.0],
+        [2.0, 0.0, 2.0, 0.1, 0.0, 0.1],
+        [2.0, 2.0, 0.0, 0.0, 0.1, 0.1],
+        [0.1, 0.1, 0.0, 0.0, 2.0, 2.0],
+        [0.1, 0.0, 0.1, 2.0, 0.0, 2.0],
+        [0.0, 0.1, 0.1, 2.0, 2.0, 0.0],
+    ],
+    dtype=float,
+)
 Q = (Q + Q.T) / 2  # ensure exact symmetry
 
-k = 3   # number of communities
+k = 3  # number of communities
 
 print(f"Partitioning {Q.shape[0]} nodes into k={k} communities")
 print()

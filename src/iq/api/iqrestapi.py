@@ -14,9 +14,7 @@ def initialize_credentials(api_key):
 
 
 def _build_auth(api_key):
-    return {
-        "Ocp-Apim-Subscription-Key": api_key
-    }
+    return {"Ocp-Apim-Subscription-Key": api_key}
 
 
 def set_url_dict():
@@ -31,8 +29,8 @@ def set_auth(auth):
 
 def post(*args, **kwdargs):
     r_json = _post(_base_url, _url_dict, _auth, *args, **kwdargs)
-    if 'exception' in r_json:
-        raise Exception(r_json['exception'])
+    if "exception" in r_json:
+        raise Exception(r_json["exception"])
     return r_json
 
 
@@ -107,7 +105,9 @@ def _post(base_url, url_dict, auth, function, waittime=1, **arguments):
         waittime = min(2 * waittime, 5)
 
     if tottime >= API_timeout:
-        raise Exception(f"Exceeded maximum time to complete computation with method '{function}'. Maximum time: {API_timeout / 3600:2.1f}h")
+        raise Exception(
+            f"Exceeded maximum time to complete computation with method '{function}'. Maximum time: {API_timeout / 3600:2.1f}h"
+        )
 
     raise Exception(f"Unable to complete computation with method '{function}'")
 
@@ -126,7 +126,9 @@ def _print_call(type, url, headers, arguments):
     print(
         f"Sending {type} request to {url}\nwith header: {headers}\n"
         f"and arguments: {_maybe_trim(str(arguments))}\n"
-        f"at timestamp {datetime.now(timezone.utc)}", flush=True)
+        f"at timestamp {datetime.now(timezone.utc)}",
+        flush=True,
+    )
 
 
 _known_entry_points = [

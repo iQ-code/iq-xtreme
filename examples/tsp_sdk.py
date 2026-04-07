@@ -18,7 +18,7 @@ coords = rng.uniform(0, 100, (n_cities, 2))
 
 # Build the Euclidean distance matrix
 diff = coords[:, np.newaxis, :] - coords[np.newaxis, :, :]
-distances = np.sqrt((diff ** 2).sum(axis=-1))
+distances = np.sqrt((diff**2).sum(axis=-1))
 
 print(f"Solving TSP for {n_cities} cities")
 print("City coordinates:")

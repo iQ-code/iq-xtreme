@@ -39,7 +39,8 @@ lb = np.array([1.0])
 ub = np.array([1.0])
 
 w, cost = iq.optim.ccqp.solve_CCQP(
-    P, q,
+    P,
+    q,
     k=3,
     x_min=0.05,
     x_max=0.40,

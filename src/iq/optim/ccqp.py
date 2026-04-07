@@ -139,9 +139,7 @@ def solve_CCQP(
         "k": validate.integer(k, 1, np.asarray(P).shape[0]),
         "x_min": validate.real(x_min),
         "x_max": validate.real(x_max),
-        "max_new_elements": validate.integer(
-            max_new_elements, -1, np.asarray(P).shape[0] - 1
-        ),
+        "max_new_elements": validate.integer(max_new_elements, -1, np.asarray(P).shape[0] - 1),
         "max_absolute_difference": validate.real(max_absolute_difference),
         "options": options,
         "random_number_generator_seed": validate.integer(
