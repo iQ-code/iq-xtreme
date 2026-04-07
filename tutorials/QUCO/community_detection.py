@@ -35,16 +35,17 @@
 #
 #     * Visualizing solution
 #
+# 3. Community detection for a larger graph
+#
 
 # %% [markdown]
 # ## Installing and Importing Libraries
 
 # %%
-import numpy as np
 import matplotlib.pyplot as plt
-
 import networkx as nx
 import networkx.algorithms.community as nx_comm
+import numpy as np
 
 import iq.api.iqrestapi
 import iq.optim.qubo
@@ -68,7 +69,7 @@ nx.draw_circular(G, with_labels=True)
 plt.show()
 
 # %% [markdown]
-# ### QUBO formulation of the problem
+# ### Community detection: problem description
 #
 # To quantify the quality of a graph partitioning into different communities, the modularity metric $M$ compares the connectivity within communities with respect to the connectivity of a random network in which the expected degree of each node matches the degree of the node in the original graph.
 #
@@ -81,17 +82,21 @@ plt.show()
 # * $m=\frac{1}{2}∑_i g_i$ - is the total sum of weights.
 #
 #
-# We can define the modularity $M$ as the difference between the actual weight $A_{ij}$ and the expected weight in the benchmark random graph: $\frac{g_i\cdot g_j}{2m}$. We can call that $B$.
+# We can define the modularity $M$ as the difference between the actual weight $A_{ij}$ and the expected weight in the benchmark random graph: $\frac{g_i\cdot g_j}{2m}$. We can call that $B_{ij}$
 #
-# $$B = A_{ij}-\frac{g_i\cdot g_j}{2m}$$
+# $$B_{ij} = A_{ij}-\frac{g_i\cdot g_j}{2m}$$
 #
 # Modularity is then be defined as:
 #
-# $$M = \frac{1}{2m} \sum_{i,j}(A_{ij}-\frac{g_i\cdot g_j}{2m})\delta(c_i,c_j)$$
+# $$M = \frac{1}{2m} \sum_{ij}\left(A_{ij}-\frac{g_i\cdot g_j}{2m}\right)\,\delta(c_i,c_j)$$
 #
-# where the Kronecker-delta $δ(c_i , c_j )$ (1 if node $i$ and node $j$ are in the same community and 0 otherwise).
+# where the Kronecker-delta $δ(c_i , c_j )$ is 1 if node $i$ and node $j$ are in the same community and 0 otherwise.
 #
-# Our goal is to maximize the modularity $M$ by finding a proper community assignment $c_i$ for each node in the graph. In the case of two communities, the problem is already expressed in terms of Quadratic Unconstrained Binary Optimization QUBO) problem, where the QUBO matrix is simply:
+# Our goal is to maximize the modularity $M$ by finding a proper community assignment $c_i$ for each node in the graph.
+#
+# ### QUBO formulation of the problem
+#
+# In the case of two communities, the problem is already expressed in terms of a Quadratic Unconstrained Binary Optimization (QUBO) problem, where the QUBO matrix is simply:
 #
 # $$Q = -\frac{1}{m}B,$$
 #
@@ -103,7 +108,8 @@ plt.show()
 
 
 # %%
-def cost_from_graph(G):
+def build_modularity_qubo(G):
+    """Build the QUBO matrix for binary (k=2) community detection via modularity maximization."""
     # Adjacency Matrix
     A = np.array(nx.to_numpy_array(G))
     size = A.shape[0]
@@ -135,7 +141,7 @@ def cost_from_graph(G):
 
 
 # %%
-Q = cost_from_graph(G)
+Q = build_modularity_qubo(G)
 
 # %% [markdown]
 # ### Solving the QUBO problem with iQ-Xtreme
@@ -145,8 +151,8 @@ x, cost = iq.optim.qubo.solve_QUBO(Q, shots=10, steps=2000)
 
 
 # %%
-def modularity_communities(G, solution):
-
+def compute_modularity(G, solution):
+    """Compute the modularity score for a given community assignment."""
     size = G.number_of_nodes()
     # Adjacency Matrix
     A = np.array(nx.to_numpy_array(G))
@@ -174,14 +180,15 @@ def modularity_communities(G, solution):
 
 
 # %%
-modularity_communities(G, x)
+compute_modularity(G, x)
 
 # %% [markdown]
 # ### Visualising the solution
 
 
 # %%
-def drawSolution(G, x, k, font_color="white"):
+def draw_communities(G, x, k, font_color="white"):
+    """Draw the graph with nodes colored by their community assignment."""
     communities = []
     for i in range(k):
         communities.append([])
@@ -210,7 +217,7 @@ def drawSolution(G, x, k, font_color="white"):
 
 # %%
 k = 2
-drawSolution(G, x, k)  # Annealer
+draw_communities(G, x, k)  # Annealer
 
 # %% [markdown]
 # Calculating modularity of our solution using NetworkX
@@ -284,7 +291,7 @@ community_array
 # With this information, we can calculate the modularity of the solution by using our previously defined funcion
 
 # %%
-print("Modularity of solution:", modularity_communities(G, community_array))
+print("Modularity of solution:", compute_modularity(G, community_array))
 
 # %% [markdown]
 # But we can calculate modularity of our solution using NetworkX buil-in functions
@@ -301,7 +308,7 @@ print(
 # ### Visualizing the solution
 
 # %%
-drawSolution(G, community_array, k)
+draw_communities(G, community_array, k)
 
 # %% [markdown]
 # ## 3. Larger example: Les Miserables co-appearance network
@@ -322,7 +329,7 @@ plt.show()
 # ### Building the modularity matrix
 
 # %%
-Q_lm = cost_from_graph(G_lm)
+Q_lm = build_modularity_qubo(G_lm)
 
 # %% [markdown]
 # ### Community detection with k=2 (QUBO)
@@ -333,7 +340,7 @@ print(f"QUBO cost: {cost_lm:.4f}")
 
 # %%
 k_lm = 2
-drawSolution(G_lm, x_lm, k_lm, font_color="black")
+draw_communities(G_lm, x_lm, k_lm, font_color="black")
 
 # %%
 communities_lm = [[] for _ in range(k_lm)]
@@ -357,7 +364,7 @@ community_array_lm = np.asarray(community_array_lm)
 print(f"QUCO cost: {cost_lm:.4f}")
 
 # %%
-drawSolution(G_lm, community_array_lm, k_lm)
+draw_communities(G_lm, community_array_lm, k_lm)
 
 # %%
 communities_lm = [[] for _ in range(k_lm)]
