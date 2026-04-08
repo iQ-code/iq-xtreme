@@ -3,8 +3,6 @@
 #
 # **Inspiration-Q**
 #
-# _Contributors: Diego Porras, Samuel Fernández Lorenzo_
-#
 # ---
 #
 # ## Content
