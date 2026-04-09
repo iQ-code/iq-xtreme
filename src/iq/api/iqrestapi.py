@@ -14,6 +14,13 @@ def initialize_credentials(api_key):
 
 
 def _build_auth(api_key):
+    """Build the authentication header dictionary from an API key."""
+    if api_key == "YOUR_API_KEY":
+        iq_credentials_file = Path.home() / ".iq_config.toml"
+        if iq_credentials_file.is_file():
+            with open(iq_credentials_file, "r") as f:
+                iq_credentials = tomllib.load(f)
+                api_key = iq_credentials["azure"]["api_key"]
     return {"Ocp-Apim-Subscription-Key": api_key}
 
 
