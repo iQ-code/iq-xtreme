@@ -1,13 +1,15 @@
 import logging
 import time
+import types
 from pathlib import Path
 
 import requests
 import tomllib
 
 _base_url = "https://www.inspiration-q.com/api"
-_url_dict = {}
-_auth = {}
+# SimpleNamespace is a bare object whose attributes can be freely set.
+# Mutating attributes on an existing object never requires the `global` keyword.
+_state = types.SimpleNamespace(auth={}, url_dict={})
 _HTTP_TIMEOUT = 30  # seconds per HTTP request
 
 logger = logging.getLogger(__name__)
@@ -32,16 +34,14 @@ def _build_auth(api_key):
 
 
 def set_url_dict():
-    """Populate the global URL dictionary from the known entry points."""
-    global _url_dict
-    _url_dict = _specialize(_base_url, _known_entry_points)
+    """Populate the URL dictionary from the known entry points."""
+    _state.url_dict = _specialize(_base_url, _known_entry_points)
     return
 
 
 def set_auth(auth):
-    """Set the global authentication header dictionary."""
-    global _auth
-    _auth = auth
+    """Set the authentication header dictionary."""
+    _state.auth = auth
     return
 
 
@@ -68,7 +68,7 @@ def post(*args, **kwdargs):
     RuntimeError
         If the API returns an exception field in the response body.
     """
-    r_json = _post(_base_url, _url_dict, _auth, *args, **kwdargs)
+    r_json = _post(_base_url, _state.url_dict, _state.auth, *args, **kwdargs)
     if "exception" in r_json:
         raise RuntimeError(r_json["exception"])
     return r_json
