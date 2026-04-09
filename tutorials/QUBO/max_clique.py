@@ -3,13 +3,17 @@
 #
 # **Inspiration-Q**
 #
-# _Contributors: Keti Sulamanidze, Samuel Fernández Lorenzo_
-#
 # ---
 #
-# A clique $C$ in an undirected graph $G = (V, E)$ is a subset of the vertex set such that for every two vertices in $C$ there exists an edge connecting the two. Our mission is to find a subgraph with maximum number of nodes in a clique. (Later on we will take a look at weighted Max Clique problem, which will introduce a parameter of the edges' weights)
+# A clique $C$ in an undirected graph $G = (V, E)$ is a subset of vertices that forms a
+# complete subgraph, i.e. every pair of vertices in $C$ is connected by an edge. The Max
+# Clique problem asks for the clique with the maximum number of vertices.
 #
-# ## Content:*
+# This notebook also covers the Weighted Max Clique variant, where each edge carries a weight
+# and the goal is to find the clique that maximizes the total sum of its edge weights
+# rather than its size.
+#
+# ## Content:
 #
 # 1. Solving unweighted Max Clique Problem with iQ-Xtreme
 #
@@ -25,8 +29,6 @@
 #
 # 2. Solving Weighted Max Clique Problem Using iQ-Xtreme
 #
-# *Content:*
-#
 #     * Creating a Weighted Random Graph
 #
 #     * Qubo Formulation of the Problem
@@ -41,14 +43,9 @@
 # ### iQ-Xtreme QUBO API
 
 # %%
-import warnings
-
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-from networkx.algorithms.approximation import clique
-
-warnings.filterwarnings("ignore")
 
 import iq.api.iqrestapi
 import iq.optim.qubo
@@ -74,33 +71,35 @@ nx.draw_circular(G, with_labels=True)
 #
 # ![Maximal-clique-example-Here-we-have-two-maximal-cliques-0-1-2-3-and-1-2-4.png](data:image/png;base64,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)
 #
-# Max cliques are here visually accessible, namely:
-# - 0,1,2,3
-# - 0,1,4,2
-# - 3,1,4,2
+# The maximal cliques are:
+# - 0,1,2,3 (size 4, the maximum clique)
+# - 1,2,4 (size 3, maximal but not maximum since node 4 is only connected to 1 and 2)
 #
 #
-# As the final answer represents a graph partition, we will assign a binary variable for each node, i.e. variable x_i denotes whether node i is in the clique (call it Subset 1) or not (Subset 0).
+# As the final answer represents a graph partition, we will assign a binary variable for
+# each node, i.e. variable $x_i$, which takes the value 1 if node $i$ is in the clique and 0 if not.
 #
-# The cost function that we are looking to maximize is the number of nodes in a complete subgraph. We can equivalently turn this problem into another optimization problem taking the **complement graph** of $G$: finding a Max Clique in $G$ is equivalent to finding a Max Independent Set in its complement graph.
+# The cost function that we are looking to maximize is the number of nodes in a complete
+# subgraph. We can turn this problem into another optimization problem by taking the complement
+# graph of $G$. This complement graph is a graph that has edges where $G$ does not have and it does
+# not have edges where $G$ has. In our case, finding a Max Clique in $G$ is equivalent to finding a
+# Max Independent Set in its complement graph.
 #
-# A complement graph would look like this:
+# The complement graph of the above one is:
 #
 # ![jnaja.png](data:image/png;base64,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)
 #
+# Now we can write the cost function of the Max Clique using our previous formulation for
+# the Max Independent Set (check the MIS tutorial for more details):
 #
 #
-# Now we can write the cost function of the Max Clique using our previous formulation for the Max Independent Set (check the MIS tutorial for more details):
+# max ( $\sum\limits_{i\in N}x_i - λ⋅\sum\limits_{(ij)\in E}x_i\cdot x_j$ )
 #
 #
-# max ( $\sum\limits_{i\in N}x_i - λ⋅\sum\limits_{(i,j)\in E}x_i\cdot x_j$ )
+# which is the same as min ( $-\sum\limits_{i\in N}x_i + λ⋅\sum\limits_{(ij)\in E_c}x_i\cdot x_j$ ),
+# with $\lambda$ a penalty coefficient.
 #
-#
-# which is the same as min ( $-\sum\limits_{i\in N}x_i + λ⋅\sum\limits_{(i,j)\in E_c}x_i\cdot x_j$ )
-#
-# *$λ$ - penalty coefficient*
-#
-# ${(i,j)\in E_c}$ based on our example would be 0,4 and 3,4
+# ${(ij)\in E_c}$ based on our example would be 0,4 and 3,4
 #
 # If we insert the details of our example graph into this formula we will get:
 #
@@ -113,9 +112,11 @@ nx.draw_circular(G, with_labels=True)
 # From a given graph we then can create a QUBO matrix using the adjacency matrix and NumPy.
 
 # %% [markdown]
-# On a diagonal we have quadratic terms, for example $X_1 ⋅ X_1$ which is the same as $X_1$ since $X_i$ can either equal 1 or 0, and its square is the same as its own value.
+# On a diagonal we have quadratic terms, for example $X_1 \cdot X_1$ which is the same as
+# $X_1$ since $X_i$ can either equal 1 or 0, and its square is the same as its own value.
 #
-# As for the other terms they come from this part of the above formula ➡ $λ⋅\sum_{(i,j)𝛜E}X_i\cdot X_j$
+# As for the other terms they come from this part of the above formula
+#  $\lambda⋅\sum_{(ij)\in E}X_i\cdot X_j$
 #
 # E is a set of edges in our complementary graph of G.
 
@@ -124,25 +125,43 @@ nx.draw_circular(G, with_labels=True)
 
 # %%
 problem_size = G.number_of_nodes()
-λ = problem_size
-Adj_matrix = np.array(nx.to_numpy_array(nx.complement(G)))
-Q_matrix = Adj_matrix * (λ / 2)
+lmbda = problem_size
+adj_matrix = np.array(nx.to_numpy_array(nx.complement(G)))
+q_matrix = adj_matrix * (lmbda / 2)
 # quadratic terms
 for i in range(problem_size):
-    Q_matrix[i, i] = -1
+    q_matrix[i, i] = -1
 
 # %% [markdown]
 # Or alternatively as a function
 
 
 # %%
-def maxclique_QUBO_matrix_from_graph(G, lmbda=None):
+def build_maxclique_qubo_matrix(G, lmbda=None):
+    """Build the QUBO matrix for the Max Clique problem on graph G.
+
+    The formulation penalizes pairs of nodes connected in the complement graph
+    (i.e. not connected in G), so the optimizer is driven to pick a clique.
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        NetworkX undirected graph.
+    lmbda : float, optional
+        Penalty coefficient. Defaults to the number of nodes in G.
+
+    Returns
+    -------
+    numpy.ndarray
+        Symmetric numpy array of shape (N, N) representing the QUBO matrix,
+        where N = G.number_of_nodes().
+    """
     C = nx.complement(G)
     problem_size = G.number_of_nodes()
     if lmbda is None:
         lmbda = problem_size
-    Adj_complement = np.array(nx.to_numpy_array(C))
-    Q = lmbda * Adj_complement
+    adj_complement = np.array(nx.to_numpy_array(C))
+    Q = lmbda * adj_complement
     for i in range(problem_size):
         Q[i, i] = -1
     Q = (Q + Q.T) / 2
@@ -150,10 +169,10 @@ def maxclique_QUBO_matrix_from_graph(G, lmbda=None):
 
 
 # %%
-Q = maxclique_QUBO_matrix_from_graph(G)  # the Qubo matrix we get from a graph
+Q = build_maxclique_qubo_matrix(G)  # the Qubo matrix we get from a graph
 
 # %%
-np.allclose(Q_matrix, Q)  # checking if the two obtained matrices are the same
+np.allclose(q_matrix, Q)  # checking if the two obtained matrices are the same
 
 # %% [markdown]
 # ### Solving the QUBO problem with iQ-Xtreme
@@ -162,15 +181,27 @@ np.allclose(Q_matrix, Q)  # checking if the two obtained matrices are the same
 
 # %%
 x, cost = iq.optim.qubo.solve_QUBO(Q, shots=10)
-print("Max Clique size:", -cost)
+print(f"Max Clique size: {-cost}")
 x_array = np.array(x)
-print("Check cost function:", -x_array.T @ Q @ x_array)
+print(f"Check cost function: {-x_array.T @ Q @ x_array}")
 
 
 # %%
-## is it a clique? it must be a complete graph => number of edges=n(n-1)/2
 def is_valid_clique(G, sol):
-    """Return True if the solution nodes form a valid clique in G."""
+    """Return True if the solution nodes form a valid clique in G.
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        NetworkX undirected graph.
+    sol : array-like
+        Binary solution array where 1 indicates membership in the clique.
+
+    Returns
+    -------
+    bool
+        True if the selected nodes form a valid clique, False otherwise.
+    """
     clique_sol = G.subgraph(np.where(sol)[0])
     return (
         clique_sol.number_of_nodes() * (clique_sol.number_of_nodes() - 1) / 2
@@ -187,17 +218,26 @@ is_valid_clique(G, x)
 
 
 # %%
-def draw_clique(G, solutionArray):
-    """Draw the graph with clique nodes highlighted in blue."""
+def draw_clique(G, solution_array):
+    """Draw the graph with clique nodes highlighted in blue.
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        NetworkX undirected graph.
+    solution_array : array-like
+        Binary solution array where 1 indicates membership in the clique.
+    """
     pos = nx.circular_layout(G)
     color_map = []
-    for node in solutionArray:
+    for node in solution_array:
         if node == 0:
             color_map.append("orange")
         else:
             color_map.append("blue")
     nx.draw(G, pos, node_color=color_map, with_labels=True)
     plt.show()
+    return
 
 
 # %%
@@ -207,42 +247,53 @@ draw_clique(G, x)
 # ### Comparison with NetworkX
 
 # %%
-networkxSol = clique.max_clique(G)
-networkxSol
+networkx_sol = nx.algorithms.approximation.clique.max_clique(G)
+networkx_sol
 
 # %%
-len(networkxSol)
+len(networkx_sol)
 
 # %%
-print(
-    "Max Clique size (iQ-Xtreme): ",
-    -cost,
-)
-print("Max Clique size (NetowkX)", len(networkxSol))
+print(f"Max Clique size (iQ-Xtreme): {-cost}")
+print(f"Max Clique size (NetworkX): {len(networkx_sol)}")
 
 
 # %% [markdown]
-# Let us now compare the solution with the implementation given by NetworkX, by building varios random graphs and counting the number of times each algorithm achieves the best solution.
+# Let us now compare the solution with the implementation given by NetworkX, by building
+# varios random graphs and counting the number of times each algorithm achieves the best
+# solution.
 
 
 # %%
 def benchmark_vs_networkx(minimum_size=5, maximum_size=100, num_reads=100, lmbda=1):
-    """Compare iQ-Xtreme and NetworkX max-clique solutions over random graphs."""
+    """Compare iQ-Xtreme and NetworkX max-clique solutions over random graphs.
+
+    Parameters
+    ----------
+    minimum_size : int, optional
+        Minimum graph size to benchmark. Default is 5.
+    maximum_size : int, optional
+        Maximum graph size (exclusive) to benchmark. Default is 100.
+    num_reads : int, optional
+        Number of shots for iQ-Xtreme solver. Default is 100.
+    lmbda : float, optional
+        Penalty coefficient for the QUBO formulation. Default is 1.
+    """
     s_iQ = 0
     s_networks = 0
     wrong = 0
 
     for i in range(minimum_size, maximum_size):
         G = nx.gnp_random_graph(i, 0.5, seed=None, directed=False)  # random graph of size i
-        Q = maxclique_QUBO_matrix_from_graph(G, lmbda=lmbda)
+        Q = build_maxclique_qubo_matrix(G, lmbda=lmbda)
 
         x, cost = iq.optim.qubo.solve_QUBO(Q, shots=num_reads)
         if not is_valid_clique(G, x):
             wrong += 1
 
-        networkxSol = clique.max_clique(G)
+        networkx_sol = nx.algorithms.approximation.clique.max_clique(G)
 
-        sizes_obtained = [-cost, len(networkxSol)]
+        sizes_obtained = [-cost, len(networkx_sol)]
         best = np.max(sizes_obtained)
 
         if best == sizes_obtained[0]:
@@ -252,9 +303,10 @@ def benchmark_vs_networkx(minimum_size=5, maximum_size=100, num_reads=100, lmbda
 
     plt.figure(figsize=(10, 8))
     plt.bar(["iQ-Xtreme", "NetworkX"], [s_iQ, s_networks])
-    plt.title("Comparison (Penalty value: {})".format(lmbda))
+    plt.title(f"Comparison (Penalty value: {lmbda})")
     plt.ylabel("Number of best solutions found")
-    print("wrong solutions found: ", wrong)
+    print(f"wrong solutions found: {wrong}")
+    return
 
 
 # %%
@@ -266,13 +318,26 @@ benchmark_vs_networkx(minimum_size=5, maximum_size=50, lmbda=1)
 # %% [markdown]
 # ### Summary function
 #
-# Let's build function that returns a list of whether node is included in clique (1) or not (0) based on iQ-Xtreme solutions.
+# Let's build function that returns a list of whether node is included in clique (1) or
+# not (0) based on iQ-Xtreme solutions.
 
 
 # %%
-def maxclique_graph_solution(G):
-    Q = maxclique_QUBO_matrix_from_graph(G)
-    x, cost = iq.optim.qubo.solve_QUBO(Q)
+def solve_maxclique(G):
+    """Solve the Max Clique problem on G using iQ-Xtreme and visualize the result.
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        NetworkX undirected graph.
+
+    Returns
+    -------
+    numpy.ndarray
+        Binary array of length N where 1 indicates a node belongs to the max clique.
+    """
+    Q = build_maxclique_qubo_matrix(G)
+    x, _ = iq.optim.qubo.solve_QUBO(Q)
     draw_clique(G, x)
     return x
 
@@ -286,7 +351,7 @@ def maxclique_graph_solution(G):
 G = nx.Graph()
 G.add_nodes_from([0, 1, 2, 3, 4, 5])
 G.add_edges_from([(0, 1), (0, 4), (1, 4), (4, 3), (2, 3), (1, 2), (5, 3)])
-maxclique_graph_solution(G)
+solve_maxclique(G)
 
 # %% [markdown]
 # ## 2. Solving Weighted Max Clique Problem Using iQ-Xtreme
@@ -298,30 +363,35 @@ maxclique_graph_solution(G)
 
 
 # %%
-def random_graph(N, p=0.5, Jrange=1.0):
-    """Create a random optimization problem, with 'N' variables, and couplings
-    in the given range.
+def create_random_graph(N, p=0.5, Jrange=1.0):
+    """Create a random weighted graph with N nodes.
 
-    Input:
-    N = number of nodes
-    Jrange = standard deviation of edge weights (defaults to 1)
-    The model chooses each of the possible edges with probability p (default is to 0.5)
+    Parameters
+    ----------
+    N : int
+        Number of nodes.
+    p : float, optional
+        Probability of including each possible edge. Default is 0.5.
+    Jrange : float, optional
+        Standard deviation of edge weights. Default is 1.0.
 
-    Output:
-    NetworkX graph
+    Returns
+    -------
+    networkx.Graph
+        Weighted undirected graph.
     """
     G = nx.gnp_random_graph(N, p, seed=None, directed=False)
     J = np.array(nx.to_numpy_array(G))
     rng = np.random.default_rng(123321)
     J = abs(J * rng.standard_normal(J.shape) * Jrange)  # abs so that the weight is positive
     J = 0.5 * (J + J.T)
-    G = nx.from_numpy_matrix(J, parallel_edges=False)
+    G = nx.from_numpy_array(J, parallel_edges=False)
     return G
 
 
 # %%
 N = 8
-G = random_graph(N)
+G = create_random_graph(N)
 weights = nx.get_edge_attributes(G, "weight").values()
 pos = nx.circular_layout(G)
 nx.draw(G, pos, width=list(weights), with_labels=True)
@@ -333,7 +403,8 @@ nx.draw(G, pos, width=list(weights), with_labels=True)
 # ### QUBO formulation
 #
 #
-# Since this is a weighted graph we need to change the QUBO to maximize over edges of the clique rather than its size.
+# Since this is a weighted graph we need to change the QUBO to maximize over edges of
+# the clique rather than its size.
 #
 #
 # $$\min (  λ⋅\sum_{(i,j)\in E_c}x_i\cdot x_j - \sum_{(i,j)\in E}w_{ij}\cdot x_i\cdot x_j)$$
@@ -346,19 +417,35 @@ nx.draw(G, pos, width=list(weights), with_labels=True)
 
 
 # %%
-def weighted_maxclique_QUBO_matrix_from_graph(G):
+def build_weighted_maxclique_qubo_matrix(G):
+    """Build the QUBO matrix for the Weighted Max Clique problem on graph G.
+
+    The objective maximizes the total weight of edges inside the clique while
+    penalizing node pairs that are not connected (i.e. edges in the complement).
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        NetworkX undirected weighted graph, with edge attribute ``weight``.
+
+    Returns
+    -------
+    numpy.ndarray
+        Symmetric numpy array of shape (N, N) representing the QUBO matrix,
+        where N = G.number_of_nodes().
+    """
     C = nx.complement(G)
     problem_size = G.number_of_nodes()
     lmbda = problem_size
-    Adj_complement = np.array(nx.to_numpy_array(C))
+    adj_complement = np.array(nx.to_numpy_array(C))
     W = np.array(nx.to_numpy_array(G))
-    Q = lmbda * Adj_complement - W
+    Q = lmbda * adj_complement - W
     Q = (Q + Q.T) / 2
     return Q
 
 
 # %%
-Q = weighted_maxclique_QUBO_matrix_from_graph(G)
+Q = build_weighted_maxclique_qubo_matrix(G)
 Q  # the Qubo matrix we get from a graph
 
 # %% [markdown]
@@ -367,9 +454,9 @@ Q  # the Qubo matrix we get from a graph
 
 # %%
 x, cost = iq.optim.qubo.solve_QUBO(Q, shots=10)
-print("Max Clique size:", -cost)
+print(f"Max weighted clique value: {-cost}")
 x_array = np.array(x)
-print("Check cost function:", -x_array.T @ Q @ x_array)
+print(f"Check cost function: {-x_array.T @ Q @ x_array}")
 
 # %% [markdown]
 # ### Code that visually displays a solution
@@ -378,11 +465,21 @@ print("Check cost function:", -x_array.T @ Q @ x_array)
 
 
 # %%
-def draw_weighted_clique(G, solutionArray, weights):
-    """Draw the graph with edge widths proportional to weights and clique nodes highlighted."""
+def draw_weighted_clique(G, solution_array, weights):
+    """Draw the graph with edge widths proportional to weights and clique nodes highlighted.
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        NetworkX undirected weighted graph.
+    solution_array : array-like
+        Binary solution array where 1 indicates membership in the clique.
+    weights : iterable
+        Edge weights used to set line widths.
+    """
     pos = nx.circular_layout(G)
     color_map = []
-    for node in solutionArray:
+    for node in solution_array:
         if node == 0:
             color_map.append("orange")
         else:
@@ -391,6 +488,7 @@ def draw_weighted_clique(G, solutionArray, weights):
     nx.draw(G, pos, width=list(weights), node_color=color_map, with_labels=True)
 
     plt.show()
+    return
 
 
 # %%
@@ -399,17 +497,30 @@ draw_weighted_clique(G, x, weights)
 # %% [markdown]
 # ### Summary function.
 #
-# A function that returns a list of whether node is included in clique (1) or not (0) based on iQ-Xtreme.
+# A function that returns a list of whether node is included in clique (1) or not (0)
+# based on iQ-Xtreme.
 
 
 # %%
-def weighted_maxclique_graph_solution(G):
+def solve_weighted_maxclique(G):
+    """Solve the Weighted Max Clique problem on G using iQ-Xtreme and visualize the result.
+
+    Parameters
+    ----------
+    G : networkx.Graph
+        NetworkX undirected weighted graph, with edge attribute ``weight``.
+
+    Returns
+    -------
+    numpy.ndarray
+        Binary array of length N where 1 indicates a node belongs to the max weighted clique.
+    """
     weights = nx.get_edge_attributes(G, "weight").values()
-    Q = weighted_maxclique_QUBO_matrix_from_graph(G)
-    x, cost = iq.optim.qubo.solve_QUBO(Q)
+    Q = build_weighted_maxclique_qubo_matrix(G)
+    x, _ = iq.optim.qubo.solve_QUBO(Q)
     draw_weighted_clique(G, x, weights)
     return x
 
 
 # %%
-weighted_maxclique_graph_solution(G)
+solve_weighted_maxclique(G)
