@@ -1,14 +1,16 @@
+import logging
 import time
-from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
 import tomllib
 
-debug = False
 _base_url = "https://www.inspiration-q.com/api"
 _url_dict = {}
 _auth = {}
+_HTTP_TIMEOUT = 30  # seconds per HTTP request
+
+logger = logging.getLogger(__name__)
 
 
 def initialize_credentials(api_key):
@@ -23,7 +25,7 @@ def _build_auth(api_key):
     if api_key == "YOUR_API_KEY":
         iq_credentials_file = Path.home() / ".iq_config.toml"
         if iq_credentials_file.is_file():
-            with open(iq_credentials_file, "r") as f:
+            with open(iq_credentials_file, "rb") as f:
                 iq_credentials = tomllib.load(f)
                 api_key = iq_credentials["azure"]["api_key"]
     return {"Ocp-Apim-Subscription-Key": api_key}
@@ -63,12 +65,12 @@ def post(*args, **kwdargs):
 
     Raises
     ------
-    Exception
+    RuntimeError
         If the API returns an exception field in the response body.
     """
     r_json = _post(_base_url, _url_dict, _auth, *args, **kwdargs)
     if "exception" in r_json:
-        raise Exception(r_json["exception"])
+        raise RuntimeError(r_json["exception"])
     return r_json
 
 
@@ -91,16 +93,14 @@ def _get(url, headers, **arguments):
 
     Raises
     ------
-    Exception
+    ConnectionError
         If the HTTP response indicates an error.
     """
-    if debug:
-        _print_call("GET", url, headers, arguments)
-    r = requests.get(url=url, headers=headers, **arguments)
-    if debug:
-        print(f"Received request Response {r} with content:\n{r.content}")
+    logger.debug(f"Sending GET request to {url} with headers {headers} and arguments {arguments}")
+    r = requests.get(url=url, headers=headers, timeout=_HTTP_TIMEOUT, **arguments)
+    logger.debug(f"Received GET response {r} with content: {r.content}")
     if not r.ok:
-        raise Exception(f"Error returned from Inspiration-Q API: {r}")
+        raise ConnectionError(f"Error returned from Inspiration-Q API: {r}")
     return r.json()
 
 
@@ -133,29 +133,27 @@ def _post(base_url, url_dict, auth, function, waittime=1, **arguments):
 
     Raises
     ------
-    Exception
-        If the function is unknown, the API returns an error,
-        or the computation exceeds the maximum allowed time.
+    ValueError
+        If the function name is not in the known URL dictionary.
+    ConnectionError
+        If the API returns an HTTP error response.
+    TimeoutError
+        If the computation exceeds the maximum allowed time.
     """
     headers = auth
 
     if function not in url_dict:
-        error_msg = f"Unknown API function {function}"
-        if debug:
-            print(url_dict)
-        raise Exception(error_msg)
+        logger.debug(f"Known URL dict: {url_dict}")
+        raise ValueError(f"Unknown API function {function}")
 
     url = url_dict[function]
-    if debug:
-        _print_call("POST", url, headers, arguments)
-    r = requests.post(url=url, headers=headers, **arguments)
-    if debug:
-        print(f"Received request Response {r} with content:\n{r.content}")
+    logger.debug(f"Sending POST request to {url} with headers {headers} and arguments {arguments}")
+    r = requests.post(url=url, headers=headers, timeout=_HTTP_TIMEOUT, **arguments)
+    logger.debug(f"Received POST response {r} with content: {r.content}")
     if not r.ok:
-        error = f"Error returned from Inspiration-Q API. function: {function}. response: {r}"
-        if debug:
-            print(error)
-        raise Exception(error)
+        raise ConnectionError(
+            f"Error returned from Inspiration-Q API. function: {function}. response: {r}"
+        )
 
     body = r.json()
 
@@ -171,16 +169,13 @@ def _post(base_url, url_dict, auth, function, waittime=1, **arguments):
     # We do a GET to function/{computationId} to retrieve the actual response once calc finishes.
 
     url = base_url + "/" + function + "/" + body["computationId"]
-
-    if debug:
-        print(f"GET url for '{function}' is {url}")
+    logger.debug(f"GET url for '{function}' is {url}")
 
     tottime = 0
     API_timeout = 12 * 3600
     valid_solution_identifiers = ["solution", "named_solution", "zscore"]
     while tottime < API_timeout:
-        if debug:
-            print(f"Waiting for {waittime}s for '{function}' to complete")
+        logger.debug(f"Waiting for {waittime}s for '{function}' to complete")
 
         time.sleep(waittime)
         tottime += waittime
@@ -189,9 +184,7 @@ def _post(base_url, url_dict, auth, function, waittime=1, **arguments):
 
         for solution_identifier in valid_solution_identifiers:
             if solution_identifier in body and body[solution_identifier]:
-                if debug:
-                    print(f"Found body:\n{body}")
-                    print("solution found")
+                logger.debug("Solution found in body: %s", body)
                 return body
 
         if "status" in body and body["status"] == "Failed":
@@ -199,13 +192,10 @@ def _post(base_url, url_dict, auth, function, waittime=1, **arguments):
 
         waittime = min(2 * waittime, 5)
 
-    if tottime >= API_timeout:
-        raise Exception(
-            f"Exceeded maximum time to complete computation with method '{function}'. "
-            f" Maximum time: {API_timeout / 3600:2.1f}h"
-        )
-
-    raise Exception(f"Unable to complete computation with method '{function}'")
+    raise TimeoutError(
+        f"Exceeded maximum time to complete computation with method '{function}'."
+        f" Maximum time: {API_timeout / 3600:2.1f}h"
+    )
 
 
 def _specialize(base_url, entry_points):
@@ -224,49 +214,6 @@ def _specialize(base_url, entry_points):
         Mapping from endpoint name to its full URL.
     """
     return {k: base_url + "/" + k for k in entry_points}
-
-
-def _maybe_trim(string, length=69):
-    """Trim a string for concise debug output when debug mode is 'short'.
-
-    Parameters
-    ----------
-    string : str
-        The string to potentially trim.
-    length : int
-        Maximum length before trimming is applied (default 69).
-
-    Returns
-    -------
-    str
-        The original string, or a trimmed version with ellipsis if too long.
-    """
-    if debug == "short" and len(string) > length:
-        return string[:length] + "..." + string[-1]
-    return string
-
-
-def _print_call(type, url, headers, arguments):
-    """Print a formatted debug message describing an outgoing HTTP request.
-
-    Parameters
-    ----------
-    type : str
-        HTTP method string (e.g., 'GET' or 'POST').
-    url : str
-        Full URL of the request.
-    headers : dict
-        Dictionary of HTTP headers being sent.
-    arguments : dict
-        Dictionary of additional request arguments.
-    """
-    print(
-        f"Sending {type} request to {url}\nwith header: {headers}\n"
-        f"and arguments: {_maybe_trim(str(arguments))}\n"
-        f"at timestamp {datetime.now(timezone.utc)}",
-        flush=True,
-    )
-    return
 
 
 _known_entry_points = [
