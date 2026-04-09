@@ -44,7 +44,6 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 
-# warnings.filterwarnings("ignore")
 import iq.api.iqrestapi
 import iq.optim.qubo
 
