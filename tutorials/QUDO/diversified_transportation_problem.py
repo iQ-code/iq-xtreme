@@ -167,15 +167,15 @@ C = 0.1 * C / np.sqrt(np.trace(C @ C.T) / (N * M))
 # We set now the Lagrange multipliers and the diversification value
 
 # %%
-λD = 1
-λS = 1
+lambda_D = 1
+lambda_S = 1
 
 # no diversification
-Δ = 0
+Delta = 0
 
 
 # %%
-def build_qudo_problem(S, D, C, λS=1.0, λD=1.0, Δ=0.0):
+def build_qudo_problem(S, D, C, lambda_S=1.0, lambda_D=1.0, Delta=0.0):
     """Build the QUDO matrix Q and vector b for the transportation problem.
 
     Encodes transportation costs, supply/demand constraints, and a diversification
@@ -190,11 +190,11 @@ def build_qudo_problem(S, D, C, λS=1.0, λD=1.0, Δ=0.0):
         Demand amounts at each destination node.
     C : ndarray of shape (M, N)
         Normalized transport cost from source i to destination j.
-    λS : float
+    lambda_S : float
         Lagrange multiplier for supply constraints.
-    λD : float
+    lambda_D : float
         Lagrange multiplier for demand constraints.
-    Δ : float
+    Delta : float
         Diversification penalty in [0, 1]. 0 = minimize cost only.
 
     Returns
@@ -213,23 +213,23 @@ def build_qudo_problem(S, D, C, λS=1.0, λD=1.0, Δ=0.0):
     for i in range(M):
         v = np.zeros(dim)
         v[i * N : (i + 1) * N] = 1
-        Q += 2 * λS * np.outer(v, v)
-        b -= 2 * λS * S[i] * v
+        Q += 2 * lambda_S * np.outer(v, v)
+        b -= 2 * lambda_S * S[i] * v
 
     # Demand constraints: penalize (sum_i x_{ij} - D_j)^2 for each destination j
     for j in range(N):
         v = np.zeros(dim)
         v[j::N] = 1
-        Q += 2 * λD * np.outer(v, v)
-        b -= 2 * λD * D[j] * v
+        Q += 2 * lambda_D * np.outer(v, v)
+        b -= 2 * lambda_D * D[j] * v
 
     b += C.ravel()
-    Q += Δ * np.eye(dim)
+    Q += Delta * np.eye(dim)
 
     return Q, b
 
 
-Q, b = build_qudo_problem(S, D, C, λS=λS, λD=λD, Δ=Δ)
+Q, b = build_qudo_problem(S, D, C, lambda_S=lambda_S, lambda_D=lambda_D, Delta=Delta)
 
 # %% [markdown]
 # ## Solving the transportation problem with iQ-Xtreme
