@@ -151,7 +151,7 @@ Q = np.array([
 Q = (Q + Q.T) / 2  # ensure symmetry
 
 s, cost = iq.optim.quco.solve_QUCO(
-    Q, k=3, shots=100, description="Graph partition"
+    Q, k=3, shots=100, steps=100, description="Graph partition"
 )
 print("Category assignments:", s, "  Cost:", cost)
 ```
