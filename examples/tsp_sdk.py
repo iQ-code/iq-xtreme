@@ -5,6 +5,7 @@ distances, and finds the shortest tour.
 """
 
 import numpy as np
+
 import iq.api.iqrestapi
 import iq.optim.tsp
 

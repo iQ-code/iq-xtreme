@@ -41,7 +41,7 @@ s, cost = iq.optim.qudo.solve_QUDO(
     steps=2000,
     min_n=min_n,
     max_n=max_n,
-    random_number_generator_seed=42,
+    random_number_generator_seed=123321,
     description="QUDO example",
 )
 print(f"Solution: {s}  cost: {cost:.6f}")

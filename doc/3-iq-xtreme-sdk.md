@@ -169,7 +169,7 @@ import iq.optim.ccqp
 iq.api.iqrestapi.initialize_credentials("YOUR_API_KEY")
 
 # Select 2 out of 5 assets to form a portfolio minimizing risk minus returns
-rng = np.random.default_rng(42)
+rng = np.random.default_rng(123321)
 n = 5
 # Covariance matrix (P) and negative expected returns (q)
 P = rng.random((n, n))

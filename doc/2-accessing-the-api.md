@@ -31,14 +31,14 @@ curl -X POST https://www.inspiration-q.com/api/v1/iq-xtreme/qubo \
   ],
   "shots": 200,
   "steps": 1000,
-  "random_number_generator_seed": 42,
+  "random_number_generator_seed": 123321,
   "description": "Small QUBO example"
 }'
 ```
 
 You will obtain a response like:
 ```json
-{"computationId":"4cfa2fc9-85c5-429f-bc9f-a29b1e907763","status":"Computing","computationStoreTimeUtc":"2025-03-04T16:18:03.3491589Z"}
+{"computationId":"4cfa2fc9-85c5-1233219f-bc9f-a29b1e907763","status":"Computing","computationStoreTimeUtc":"2025-03-04T16:18:03.3491589Z"}
 ```
 
 Then poll for the result:
@@ -49,7 +49,7 @@ curl -X GET "https://www.inspiration-q.com/api/v1/iq-xtreme/qubo/{computationId}
 
 Once complete:
 ```json
-{"computationId":"4cfa2fc9-85c5-429f-bc9f-a29b1e907763","status":"Ok","computationTimeInSeconds":0.12,"solution":[1,0,0,1],"cost":-2.0}
+{"computationId":"4cfa2fc9-85c5-1233219f-bc9f-a29b1e907763","status":"Ok","computationTimeInSeconds":0.12,"solution":[1,0,0,1],"cost":-2.0}
 ```
 
 ### TSP
@@ -90,7 +90,7 @@ curl -X POST https://www.inspiration-q.com/api/v1/iq-xtreme/qudo \
   ],
   "vector": [-4.0, -6.0, -4.0],
   "beta_steps": 1000,
-  "random_number_generator_seed": 42,
+  "random_number_generator_seed": 123321,
   "description": "Small QUDO example"
 }'
 ```
@@ -111,7 +111,7 @@ curl -X POST https://www.inspiration-q.com/api/v1/iq-xtreme/quco \
   ],
   "k": 2,
   "options": {"copies": 100},
-  "random_number_generator_seed": 42,
+  "random_number_generator_seed": 123321,
   "description": "Small QUCO example"
 }'
 ```
@@ -166,7 +166,7 @@ payload = {
     ],
     "shots": 200,
     "steps": 1000,
-    "random_number_generator_seed": 42,
+    "random_number_generator_seed": 123321,
     "description": "QUBO example without SDK"
 }
 
