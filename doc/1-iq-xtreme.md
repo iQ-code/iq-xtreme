@@ -152,7 +152,7 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/quco
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `solution` | array | Category label vector; $ s_i \in \left\lbrace 1,\dots, k \right\rbrace $ |
+| `solution` | array | Category label vector; $ s_i \in \left\lbrace 0,\dots, k-1 \right\rbrace $ |
 | `cost` | float | Minimum value of E(c) |
 
 ---
