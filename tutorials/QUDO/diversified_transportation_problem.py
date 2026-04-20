@@ -16,13 +16,9 @@
 # * Visualizing Solution
 
 # %%
-import warnings
-
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-
-warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 import iq.api.iqrestapi
 import iq.optim.qudo

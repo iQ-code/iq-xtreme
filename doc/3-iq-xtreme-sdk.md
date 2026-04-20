@@ -121,8 +121,9 @@ min_n = np.array([0.0, 0.0])
 max_n = np.array([5.0, 5.0])
 
 s, cost = iq.optim.qudo.solve_QUDO(
-    Q, vector=v, steps=2000,
+    Q, vector=v, 
     min_n=min_n, max_n=max_n,
+    shots=100, steps=2000,
     description="QUDO example"
 )
 print("Solution:", s, "  Cost:", cost)

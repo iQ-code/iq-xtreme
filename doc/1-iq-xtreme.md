@@ -95,9 +95,10 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/qudo
 |-------|------|-------------|
 | `matrix` | array | Square matrix Q |
 | `vector` | array (optional) | Linear vector v |
-| `steps` | integer | Number of algorithm steps |
 | `min_n` | array (optional) | Element-wise lower bounds |
 | `max_n` | array (optional) | Element-wise upper bounds |
+| `shots` | integer | Number of trajectories |
+| `steps` | integer | Number of algorithm steps |
 | `random_number_generator_seed` | integer | RNG seed |
 | `description` | string | Optional label |
 
