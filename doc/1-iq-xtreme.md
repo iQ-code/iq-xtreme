@@ -174,7 +174,7 @@ $$
 and optionally:
 
 $$
-\text{s.t.} \quad l_b \leq A\,w \leq u_b 
+\text{s.t.} \quad l_b \leq A\, w \leq u_b 
 $$
 
 This formulation naturally encodes portfolio construction (choose k assets with continuous weights), sparse signal recovery, and compressed sensing.
