@@ -214,3 +214,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Other tutorials
+tutorials/QUBO/max_cut_2.py
+tutorials/QUBO/max_cut_gset.py
