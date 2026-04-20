@@ -205,11 +205,9 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/ccqp
 | `A` | array (optional) | Linear constraint matrix |
 | `lb` | array (optional) | Lower bounds for A w |
 | `ub` | array (optional) | Upper bounds for A w |
-| `x0` | array (optional) | Warm-start solution |
-| `max_absolute_difference` | float | Max L1 turnover from x0 (default: -1 = inactive) |
-| `max_new_elements` | integer | Max new nonzeros vs. x0 (default: -1 = inactive) |
-| `options.copies` | integer | Number of trajectories |
-| `options.tol` | float | Solver tolerance |
+| `shots` | integer | Number of heuristic trajectories |
+| `steps` | integer | Number of algorithm steps |
+| `tol` | float | Continuous quadratic programming solver tolerance |
 | `random_number_generator_seed` | integer | RNG seed |
 | `description` | string | Optional label |
 

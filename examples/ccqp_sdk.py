@@ -13,6 +13,7 @@ The CCQP formulation is:
 """
 
 import numpy as np
+
 import iq.api.iqrestapi
 import iq.optim.ccqp
 
@@ -47,8 +48,8 @@ w, cost = iq.optim.ccqp.solve_CCQP(
     A=A_constraint,
     lb=lb,
     ub=ub,
-    random_number_generator_seed=42,
-    options={"copies": 100},
+    shots=100,
+    random_number_generator_seed=123321,
     description="3-asset portfolio selection",
 )
 
