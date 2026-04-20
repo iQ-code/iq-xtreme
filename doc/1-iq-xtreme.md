@@ -172,6 +172,7 @@ $$
 $$
 
 and optionally:
+
 $$
 \text{s.t.} \quad l_b \leq A\,w \leq u_b 
 $$
