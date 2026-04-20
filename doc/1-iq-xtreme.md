@@ -173,7 +173,9 @@ $$
 
 and optionally:
 $$
+\begin{equation*}
 \text{s.t.} \quad lb \leq A w \leq ub \quad \text{(linear inequality constraints)}
+\end{equation*}
 $$
 
 This formulation naturally encodes portfolio construction (choose k assets with continuous weights), sparse signal recovery, and compressed sensing.
