@@ -8,6 +8,7 @@ with element-wise bounds:  min_n[i] <= n[i] <= max_n[i].
 """
 
 import numpy as np
+
 import iq.api.iqrestapi
 import iq.optim.qudo
 
@@ -36,10 +37,11 @@ print()
 s, cost = iq.optim.qudo.solve_QUDO(
     Q,
     vector=v,
+    shots=100,
     steps=2000,
     min_n=min_n,
     max_n=max_n,
-    random_number_generator_seed=42,
+    random_number_generator_seed=123321,
     description="QUDO example",
 )
 print(f"Solution: {s}  cost: {cost:.6f}")

@@ -121,8 +121,9 @@ min_n = np.array([0.0, 0.0])
 max_n = np.array([5.0, 5.0])
 
 s, cost = iq.optim.qudo.solve_QUDO(
-    Q, vector=v, steps=2000,
+    Q, vector=v, 
     min_n=min_n, max_n=max_n,
+    shots=100, steps=2000,
     description="QUDO example"
 )
 print("Solution:", s, "  Cost:", cost)
@@ -151,7 +152,7 @@ Q = np.array([
 Q = (Q + Q.T) / 2  # ensure symmetry
 
 s, cost = iq.optim.quco.solve_QUCO(
-    Q, k=3, shots=100, description="Graph partition"
+    Q, k=3, shots=100, steps=100, description="Graph partition"
 )
 print("Category assignments:", s, "  Cost:", cost)
 ```
@@ -168,7 +169,7 @@ import iq.optim.ccqp
 iq.api.iqrestapi.initialize_credentials("YOUR_API_KEY")
 
 # Select 2 out of 5 assets to form a portfolio minimizing risk minus returns
-rng = np.random.default_rng(42)
+rng = np.random.default_rng(123321)
 n = 5
 # Covariance matrix (P) and negative expected returns (q)
 P = rng.random((n, n))

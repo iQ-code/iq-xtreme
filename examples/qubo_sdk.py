@@ -13,6 +13,7 @@ so that each edge (i,j) with s_i != s_j contributes -1 to the cost
 """
 
 import numpy as np
+
 import iq.api.iqrestapi
 import iq.optim.qubo
 
@@ -36,7 +37,7 @@ s, cost = iq.optim.qubo.solve_QUBO(
     Q,
     shots=300,
     steps=2000,
-    random_number_generator_seed=42,
+    random_number_generator_seed=123321,
     description="Max-cut",
 )
 print(f"Solution: {s}  cost: {cost}")

@@ -44,7 +44,7 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/qubo
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `matrix` | array | Square matrix Q (max 2048 × 2048) |
+| `matrix` | array | Square matrix Q |
 | `shots` | integer | Number of trajectories |
 | `steps` | integer | Steps per trajectory |
 | `random_number_generator_seed` | integer | RNG seed |
@@ -93,11 +93,12 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/qudo
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `matrix` | array | Square matrix Q (max 2048 × 2048) |
+| `matrix` | array | Square matrix Q |
 | `vector` | array (optional) | Linear vector v |
-| `steps` | integer | Number of algorithm steps |
 | `min_n` | array (optional) | Element-wise lower bounds |
 | `max_n` | array (optional) | Element-wise upper bounds |
+| `shots` | integer | Number of trajectories |
+| `steps` | integer | Number of algorithm steps |
 | `random_number_generator_seed` | integer | RNG seed |
 | `description` | string | Optional label |
 
@@ -140,9 +141,10 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/quco
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `Q` | array | Symmetric square matrix (max 10000 × 10000) |
-| `k` | integer | Number of categories (2 ≤ k ≤ n−1) |
+| `Q` | array | Symmetric square matrix |
+| `k` | integer | Number of categories ($2 \leq k \leq n-1$) |
 | `shots` | integer | Number of trajectories (default: 100) |
+| `steps` | integer | Number of algorithm steps (default: 100) |
 | `random_number_generator_seed` | integer | RNG seed |
 | `description` | string | Optional label |
 
@@ -150,7 +152,7 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/quco
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `solution` | array | Category label vector; s[i] ∈ {0, ..., k−1} |
+| `solution` | array | Category label vector; $ s_i \in \left\lbrace 0,\dots, k-1 \right\rbrace $ |
 | `cost` | float | Minimum value of E(c) |
 
 ---
@@ -195,7 +197,7 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/ccqp
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `P` | array | Symmetric positive-definite matrix (max 2048 × 2048) |
+| `P` | array | Symmetric positive-definite matrix |
 | `q` | array | Linear vector |
 | `k` | integer | Cardinality (number of nonzero elements) |
 | `x_min` | float | Lower bound for continuous variables (default: 0.0) |
@@ -203,11 +205,9 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/ccqp
 | `A` | array (optional) | Linear constraint matrix |
 | `lb` | array (optional) | Lower bounds for A w |
 | `ub` | array (optional) | Upper bounds for A w |
-| `x0` | array (optional) | Warm-start solution |
-| `max_absolute_difference` | float | Max L1 turnover from x0 (default: −1 = inactive) |
-| `max_new_elements` | integer | Max new nonzeros vs. x0 (default: −1 = inactive) |
-| `options.copies` | integer | Number of trajectories |
-| `options.tol` | float | Solver tolerance |
+| `shots` | integer | Number of heuristic trajectories |
+| `steps` | integer | Number of algorithm steps |
+| `tol` | float | Continuous quadratic programming solver tolerance |
 | `random_number_generator_seed` | integer | RNG seed |
 | `description` | string | Optional label |
 
@@ -252,7 +252,7 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/tsp
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `distances` | array | Square distance matrix (max 2048 × 2048) |
+| `distances` | array | Square distance matrix |
 | `steps` | integer | Steps per trajectory |
 | `shots` | integer | Number of trajectories |
 | `circular` | boolean | True for Hamiltonian cycle, False for path |

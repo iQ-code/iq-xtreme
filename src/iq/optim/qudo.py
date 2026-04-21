@@ -29,6 +29,7 @@ def solve_QUDO(
     vector: NDArray[np.float64] | None = None,
     min_n: NDArray[np.float64] | None = None,
     max_n: NDArray[np.float64] | None = None,
+    shots: int = 100,
     steps: int = 1000,
     random_number_generator_seed: int = 123321,
     description: str = "",
@@ -53,6 +54,8 @@ def solve_QUDO(
         Element-wise lower bounds on the integer solution vector.
     max_n : NDArray[np.float64] | None, default=None
         Element-wise upper bounds on the integer solution vector.
+    shots : int, default = 100
+        Number of stochastic trajectories to explore.
     steps : int, default=1000
         Number of algorithm steps.
     random_number_generator_seed : int, default=123321
@@ -72,6 +75,7 @@ def solve_QUDO(
         "algorithm": "sa",
         "matrix": _validate_QUDO_matrix(matrix, 2048),
         "beta_steps": validate.integer(steps, 1, 10000),
+        "copies": validate.integer(shots, 1, 1000),
         "random_number_generator_seed": validate.integer(
             random_number_generator_seed, 0, 0xFFFFFFF
         ),

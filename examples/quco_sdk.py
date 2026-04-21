@@ -12,6 +12,7 @@ and edges with negative weight (affinities) are encouraged.
 """
 
 import numpy as np
+
 import iq.api.iqrestapi
 import iq.optim.quco
 
@@ -41,8 +42,9 @@ print()
 labels, cost = iq.optim.quco.solve_QUCO(
     Q,
     k=k,
-    random_number_generator_seed=42,
     shots=100,
+    steps=100,
+    random_number_generator_seed=123321,
     description="Graph community detection",
 )
 

@@ -49,11 +49,10 @@ def solve_CCQP(
     A: NDArray[np.float64] | None = None,
     lb: NDArray[np.float64] | None = None,
     ub: NDArray[np.float64] | None = None,
-    x0: NDArray[np.float64] | None = None,
-    max_absolute_difference: float = -1.0,
-    max_new_elements: int = -1,
+    shots: int = 30,
+    steps: int = 100,
+    tol: float = 1e-5,
     random_number_generator_seed: int = 123321,
-    options: dict | None = None,
     description: str = "",
 ) -> tuple[NDArray[np.float64], float]:
     """Solve a Cardinality Constrained Quadratic Programming (CCQP) problem.
@@ -63,14 +62,11 @@ def solve_CCQP(
         min_{w}   (1/2) w^T P w + q^T w
         with      w_i = n_i * x_i
                   x_i in [x_min, x_max]   (continuous part)
-                  n_i in {0, 1}            (binary selection part)
-        s.t.      sum_i n_i = k            (cardinality constraint)
+                  n_i in {0, 1}           (binary selection part)
+        s.t.      sum_i n_i = k           (cardinality constraint)
 
-    Optionally, the problem also supports:
-    - Linear inequality constraints:  lb <= A w <= ub
-    - A warm-start initial solution x0
-    - A maximum L1-norm difference from x0: ||w - x0||_1 / 2 <= max_absolute_difference
-    - A maximum number of new nonzero elements relative to x0: max_new_elements
+    Optionally, the problem also supports linear inequality constraints:
+        lb <= A w <= ub
 
     This formulation is useful for portfolio optimization, sparse signal
     recovery, and any problem that requires selecting exactly k active
@@ -99,26 +95,14 @@ def solve_CCQP(
     ub : NDArray[np.float64] | None, default=None
         Upper bounds vector for the linear constraints: A w <= ub.
         Length must equal the number of rows in A.
-    x0 : NDArray[np.float64] | None, default=None
-        Initial (warm-start) solution vector. When provided, enables
-        the rotation constraints `max_absolute_difference` and
-        `max_new_elements`.
-    max_absolute_difference : float, default=-1.0
-        Maximum allowed L1 turnover from x0:
-            sum_i |w_i - x0_i| / 2 <= max_absolute_difference.
-        If negative, this constraint is inactive.
-    max_new_elements : int, default=-1
-        Maximum number of nonzero elements in w that were zero in x0.
-        If negative, this constraint is inactive.
+    shots : int, default = 30
+        Number of stochastic trajectories to explore.
+    steps : int, default = 100
+        Number of algorithm steps.
+    tol : float, default = 1e-5
+        Relative error criterion to stop the inner quadratic programming solver.
     random_number_generator_seed : int, default=123321
         Seed for the random number generator.
-    options : dict | None, default=None
-        Optimization hyperparameters. Accepted keys:
-
-        - copies : int, default=100
-            Number of stochastic trajectories (between 1 and 500).
-        - tol : float
-            Relative error criterion to stop the inner solver.
     description : str, default=""
         Descriptive name of the computation.
 
@@ -130,8 +114,11 @@ def solve_CCQP(
         Minimum value of the CCQP cost function (1/2) w^T P w + q^T w.
 
     """
-    if options is None:
-        options = {}
+    options = {
+        "copies": validate.integer(shots, 1, 500, b_return_repr=False),
+        "beta_steps": validate.integer(steps, 1, 1000, b_return_repr=False),
+        "eps": validate.real(tol, min_value=1e-9),
+    }
 
     json_args = {
         "P": _validate_CCQP_matrix(P, 2048),
@@ -139,8 +126,6 @@ def solve_CCQP(
         "k": validate.integer(k, 1, np.asarray(P).shape[0]),
         "x_min": validate.real(x_min),
         "x_max": validate.real(x_max),
-        "max_new_elements": validate.integer(max_new_elements, -1, np.asarray(P).shape[0] - 1),
-        "max_absolute_difference": validate.real(max_absolute_difference),
         "options": options,
         "random_number_generator_seed": validate.integer(
             random_number_generator_seed, 0, 0xFFFFFFF
@@ -156,9 +141,6 @@ def solve_CCQP(
 
     if ub is not None:
         json_args |= {"ub": _validate_CCQP_vector(ub, 2048)}
-
-    if x0 is not None:
-        json_args |= {"x0": _validate_CCQP_vector(x0, 2048)}
 
     r_post = iqrestapi.post(
         "v1/iq-xtreme/ccqp",
