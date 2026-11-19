@@ -31,7 +31,7 @@ def solve_QUDO(
     max_n: NDArray[np.float64] | None = None,
     shots: int = 100,
     steps: int = 1000,
-    random_number_generator_seed: int = 123321,
+    random_number_generator_seed: int = 0,
     description: str = "",
 ) -> tuple[NDArray[np.int32], float]:
     """Solve a QUDO problem.
@@ -58,7 +58,7 @@ def solve_QUDO(
         Number of stochastic trajectories to explore.
     steps : int, default=1000
         Number of algorithm steps.
-    random_number_generator_seed : int, default=123321
+    random_number_generator_seed : int, default=0
         Seed for the random number generator.
     description : str, default=""
         Descriptive name of the computation.
@@ -78,7 +78,7 @@ def solve_QUDO(
             "num_states": validate.integer(shots, 1, 1000),
             "num_annealing_steps": validate.integer(steps, 1, 10000),
         },
-        "seed": validate.integer(random_number_generator_seed, 0, 0xFFFFFFF),
+        "seed": validate.integer(random_number_generator_seed, 0, 0xFFFFFFFF),
         "description": validate.string(description),
     }
 

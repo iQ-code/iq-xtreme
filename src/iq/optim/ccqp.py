@@ -52,7 +52,7 @@ def solve_CCQP(
     shots: int = 30,
     steps: int = 100,
     tol: float = 1e-5,
-    random_number_generator_seed: int = 123321,
+    random_number_generator_seed: int = 0,
     description: str = "",
 ) -> tuple[NDArray[np.float64], float]:
     """Solve a Cardinality Constrained Quadratic Programming (CCQP) problem.
@@ -101,7 +101,7 @@ def solve_CCQP(
         Number of algorithm steps.
     tol : float, default = 1e-5
         Relative error criterion to stop the inner quadratic programming solver.
-    random_number_generator_seed : int, default=123321
+    random_number_generator_seed : int, default=0
         Seed for the random number generator.
     description : str, default=""
         Descriptive name of the computation.
@@ -127,7 +127,7 @@ def solve_CCQP(
         "x_lb": validate.real(x_min),
         "x_ub": validate.real(x_max),
         "options": options,
-        "seed": validate.integer(random_number_generator_seed, 0, 0xFFFFFFF),
+        "seed": validate.integer(random_number_generator_seed, 0, 0xFFFFFFFF),
         "description": validate.string(description),
     }
 
