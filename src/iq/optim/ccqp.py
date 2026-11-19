@@ -115,21 +115,19 @@ def solve_CCQP(
 
     """
     options = {
-        "copies": validate.integer(shots, 1, 500, b_return_repr=False),
-        "beta_steps": validate.integer(steps, 1, 1000, b_return_repr=False),
-        "eps": validate.real(tol, min_value=1e-9),
+        "num_states": validate.integer(shots, 1, 500, b_return_repr=False),
+        "num_temperature_steps": validate.integer(steps, 1, 1000, b_return_repr=False),
+        "admm_eps": validate.real(tol, min_value=1e-9),
     }
 
     json_args = {
         "P": _validate_CCQP_matrix(P, 2048),
         "q": _validate_CCQP_vector(q, 2048),
         "k": validate.integer(k, 1, np.asarray(P).shape[0]),
-        "x_min": validate.real(x_min),
-        "x_max": validate.real(x_max),
+        "x_lb": validate.real(x_min),
+        "x_ub": validate.real(x_max),
         "options": options,
-        "random_number_generator_seed": validate.integer(
-            random_number_generator_seed, 0, 0xFFFFFFF
-        ),
+        "seed": validate.integer(random_number_generator_seed, 0, 0xFFFFFFF),
         "description": validate.string(description),
     }
 

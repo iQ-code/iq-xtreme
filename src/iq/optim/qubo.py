@@ -56,12 +56,12 @@ def solve_QUBO(
         "v1/iq-xtreme/qubo",
         json={
             "algorithm": "pa",
-            "matrix": _validate_QUBO_matrix(matrix, 30000),
-            "shots": validate.integer(shots, 1, 500),
-            "beta_steps": validate.integer(steps, 1, 10000),
-            "random_number_generator_seed": validate.integer(
-                random_number_generator_seed, 0, 0xFFFFFFF
-            ),
+            "Q": _validate_QUBO_matrix(matrix, 30000),
+            "options": {
+                "num_states": validate.integer(shots, 1, 500),
+                "num_temperature_steps": validate.integer(steps, 1, 10000),
+            },
+            "seed": validate.integer(random_number_generator_seed, 0, 0xFFFFFFF),
             "description": validate.string(description),
         },
     )

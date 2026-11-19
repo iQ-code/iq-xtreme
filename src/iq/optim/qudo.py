@@ -73,23 +73,23 @@ def solve_QUDO(
     """
     json_args = {
         "algorithm": "sa",
-        "matrix": _validate_QUDO_matrix(matrix, 2048),
-        "beta_steps": validate.integer(steps, 1, 10000),
-        "copies": validate.integer(shots, 1, 1000),
-        "random_number_generator_seed": validate.integer(
-            random_number_generator_seed, 0, 0xFFFFFFF
-        ),
+        "P": _validate_QUDO_matrix(matrix, 2048),
+        "options": {
+            "num_states": validate.integer(shots, 1, 1000),
+            "num_annealing_steps": validate.integer(steps, 1, 10000),
+        },
+        "seed": validate.integer(random_number_generator_seed, 0, 0xFFFFFFF),
         "description": validate.string(description),
     }
 
     if vector is not None:
-        json_args |= {"vector": _validate_QUDO_vector(vector, 2048)}
+        json_args |= {"q": _validate_QUDO_vector(vector, 2048)}
 
     if min_n is not None:
-        json_args |= {"min_n": _validate_QUDO_vector(min_n, 2048)}
+        json_args |= {"x_lb": _validate_QUDO_vector(min_n, 2048)}
 
     if max_n is not None:
-        json_args |= {"max_n": _validate_QUDO_vector(max_n, 2048)}
+        json_args |= {"x_ub": _validate_QUDO_vector(max_n, 2048)}
 
     r = iqrestapi.post("v1/iq-xtreme/qudo", json=json_args)
     return r["solution"], r["cost"]
