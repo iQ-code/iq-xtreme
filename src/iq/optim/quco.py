@@ -21,7 +21,7 @@ def solve_QUCO(
     k: int,
     shots: int = 100,
     steps: int = 100,
-    random_number_generator_seed: int = 123321,
+    random_number_generator_seed: int = 0,
     description: str = "",
 ) -> tuple[NDArray[np.int32], float]:
     """Solve a Quadratic Unconstrained Category Optimization (QUCO) problem.
@@ -53,7 +53,7 @@ def solve_QUCO(
         Number of stochastic trajectories to explore.
     steps : int, default = 100
         Number of algorithm steps.
-    random_number_generator_seed : int, default=123321
+    random_number_generator_seed : int, default=0
         Seed for the random number generator.
     description : str, default=""
         Descriptive name of the computation.
@@ -68,8 +68,8 @@ def solve_QUCO(
 
     """
     options = {
-        "copies": validate.integer(shots, 1, 500, b_return_repr=False),
-        "beta_steps": validate.integer(steps, 1, 1000, b_return_repr=False),
+        "num_states": validate.integer(shots, 1, 500, b_return_repr=False),
+        "num_temperature_steps": validate.integer(steps, 1, 1000, b_return_repr=False),
     }
 
     r = iqrestapi.post(
@@ -77,9 +77,7 @@ def solve_QUCO(
         json={
             "Q": _validate_QUCO_matrix(Q, 10_000),
             "k": validate.integer(k, 2, np.asarray(Q).shape[1] - 1),
-            "random_number_generator_seed": validate.integer(
-                random_number_generator_seed, 0, 0xFFFFFFF
-            ),
+            "seed": validate.integer(random_number_generator_seed, 0, 0xFFFFFFFF),
             "options": options,
             "description": validate.string(description),
         },

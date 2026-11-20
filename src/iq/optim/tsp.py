@@ -61,8 +61,10 @@ def solve_TSP(
         json={
             "algorithm": "sa",
             "distances": _validate_TSP_matrix(distances, 2048),
-            "steps": validate.integer(steps, 1, 10000),
-            "shots": validate.integer(shots, 1, 500),
+            "options": {
+                "num_states": validate.integer(shots, 1, 500),
+                "num_annealing_steps": validate.integer(steps, 1, 10000),
+            },
             "circular": validate.boolean(circular),
             "description": validate.string(description),
         },

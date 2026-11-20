@@ -31,7 +31,7 @@ def solve_QUDO(
     max_n: NDArray[np.float64] | None = None,
     shots: int = 100,
     steps: int = 1000,
-    random_number_generator_seed: int = 123321,
+    random_number_generator_seed: int = 0,
     description: str = "",
 ) -> tuple[NDArray[np.int32], float]:
     """Solve a QUDO problem.
@@ -58,7 +58,7 @@ def solve_QUDO(
         Number of stochastic trajectories to explore.
     steps : int, default=1000
         Number of algorithm steps.
-    random_number_generator_seed : int, default=123321
+    random_number_generator_seed : int, default=0
         Seed for the random number generator.
     description : str, default=""
         Descriptive name of the computation.
@@ -73,23 +73,23 @@ def solve_QUDO(
     """
     json_args = {
         "algorithm": "sa",
-        "matrix": _validate_QUDO_matrix(matrix, 2048),
-        "beta_steps": validate.integer(steps, 1, 10000),
-        "copies": validate.integer(shots, 1, 1000),
-        "random_number_generator_seed": validate.integer(
-            random_number_generator_seed, 0, 0xFFFFFFF
-        ),
+        "P": _validate_QUDO_matrix(matrix, 2048),
+        "options": {
+            "num_states": validate.integer(shots, 1, 1000),
+            "num_annealing_steps": validate.integer(steps, 1, 10000),
+        },
+        "seed": validate.integer(random_number_generator_seed, 0, 0xFFFFFFFF),
         "description": validate.string(description),
     }
 
     if vector is not None:
-        json_args |= {"vector": _validate_QUDO_vector(vector, 2048)}
+        json_args |= {"q": _validate_QUDO_vector(vector, 2048)}
 
     if min_n is not None:
-        json_args |= {"min_n": _validate_QUDO_vector(min_n, 2048)}
+        json_args |= {"x_lb": _validate_QUDO_vector(min_n, 2048)}
 
     if max_n is not None:
-        json_args |= {"max_n": _validate_QUDO_vector(max_n, 2048)}
+        json_args |= {"x_ub": _validate_QUDO_vector(max_n, 2048)}
 
     r = iqrestapi.post("v1/iq-xtreme/qudo", json=json_args)
     return r["solution"], r["cost"]
