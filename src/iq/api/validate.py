@@ -9,8 +9,7 @@ def integer(
     min_value: int,
     max_value: int,
     name: str | None = None,
-    b_return_repr: bool = True,
-) -> str | int:
+) -> int:
     """Validate that a number is an integer within a given range.
 
     Parameters
@@ -23,13 +22,11 @@ def integer(
         Maximum allowed value (inclusive).
     name : str, optional
         Parameter name used in error messages.
-    b_return_repr : bool, optional
-        If True, return repr(number) as a string; otherwise return the int.
 
     Returns
     -------
-    str or int
-        repr of the validated integer if b_return_repr is True, else the int.
+    int
+        The validated integer.
 
     Raises
     ------
@@ -44,10 +41,7 @@ def integer(
             )
         else:
             raise ValueError(f"Number: {number} is out of range: ({min_value}, {max_value})")
-    if b_return_repr:
-        return repr(number)
-    else:
-        return number
+    return number
 
 
 def integer_or_string(obj: int | float | str) -> str:
@@ -129,8 +123,7 @@ def real(
     min_value: float | None = None,
     max_value: float | None = None,
     name: str | None = None,
-    b_return_repr: bool = True,
-) -> str | float:
+) -> float:
     """Validate that a number is a real value within optional bounds.
 
     Parameters
@@ -143,13 +136,11 @@ def real(
         Maximum allowed value (inclusive). Not checked if None.
     name : str, optional
         Parameter name used in error messages.
-    b_return_repr : bool, optional
-        If True, return repr(number) as a string; otherwise return the float.
 
     Returns
     -------
-    str or float
-        repr of the validated float if b_return_repr is True, else the float.
+    float
+        The validated real number.
 
     Raises
     ------
@@ -171,10 +162,7 @@ def real(
             )
         else:
             raise ValueError(f"Number: {number} is larger than its maximum value: {max_value}")
-    if b_return_repr:
-        return repr(number)
-    else:
-        return number
+    return number
 
 
 def boolean(b: bool, name: str | None = None) -> bool:
@@ -208,8 +196,7 @@ def boolean(b: bool, name: str | None = None) -> bool:
 def dictionary(
     obj: dict,
     name: str | None = None,
-    b_return_repr: bool = True,
-) -> str | dict:
+) -> dict:
     """Validate that an object is a dictionary.
 
     Parameters
@@ -218,13 +205,11 @@ def dictionary(
         Object to validate.
     name : str, optional
         Parameter name used in error messages.
-    b_return_repr : bool, optional
-        If True, return repr(obj) as a string; otherwise return the dict.
 
     Returns
     -------
-    str or dict
-        repr of the validated dict if b_return_repr is True, else the dict.
+    dict
+        The validated dictionary.
 
     Raises
     ------
@@ -237,10 +222,7 @@ def dictionary(
         else:
             raise ValueError(f"Expected a dictionary. Got:\n{obj}")
     obj = dict(obj)
-    if b_return_repr:
-        return repr(obj)
-    else:
-        return obj
+    return obj
 
 
 def validate_vector(

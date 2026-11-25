@@ -115,8 +115,8 @@ def solve_CCQP(
 
     """
     options = {
-        "num_states": validate.integer(shots, 1, 500, b_return_repr=False),
-        "num_temperature_steps": validate.integer(steps, 1, 1000, b_return_repr=False),
+        "num_states": validate.integer(shots, 1, 500),
+        "num_temperature_steps": validate.integer(steps, 1, 1000),
         "admm_eps": validate.real(tol, min_value=1e-9),
     }
 
