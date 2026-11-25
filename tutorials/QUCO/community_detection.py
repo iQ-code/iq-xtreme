@@ -147,7 +147,7 @@ Q = build_modularity_qubo(G)
 # ### Solving the QUBO problem with iQ-Xtreme
 
 # %%
-x, cost = iq.optim.qubo.solve_QUBO(Q, shots=10, steps=2000)
+x, cost = iq.optim.qubo.solve_QUBO(Q, num_states=10, num_temperature_steps=2000)
 
 
 # %%
@@ -283,7 +283,7 @@ nx_comm.modularity(G, communities, weight="weight", resolution=1)
 
 # %%
 k = 3
-community_array, cost = iq.optim.quco.solve_QUCO(Q, k=k, shots=20)
+community_array, cost = iq.optim.quco.solve_QUCO(Q, k=k, num_states=20)
 community_array = np.asarray(community_array)
 community_array
 
@@ -335,7 +335,7 @@ Q_lm = build_modularity_qubo(G_lm)
 # ### Community detection with k=2 (QUBO)
 
 # %%
-x_lm, cost_lm = iq.optim.qubo.solve_QUBO(Q_lm, shots=10, steps=2000)
+x_lm, cost_lm = iq.optim.qubo.solve_QUBO(Q_lm, num_states=10, num_temperature_steps=2000)
 print(f"QUBO cost: {cost_lm:.4f}")
 
 # %%
@@ -359,7 +359,7 @@ print(
 
 # %%
 k_lm = 6
-community_array_lm, cost_lm = iq.optim.quco.solve_QUCO(Q_lm, k=k_lm, shots=100)
+community_array_lm, cost_lm = iq.optim.quco.solve_QUCO(Q_lm, k=k_lm, num_states=100)
 community_array_lm = np.asarray(community_array_lm)
 print(f"QUCO cost: {cost_lm:.4f}")
 

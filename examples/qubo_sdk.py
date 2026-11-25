@@ -37,9 +37,9 @@ print()
 # --- Solve QUBO ---
 s, cost = iq.optim.qubo.solve_QUBO(
     Q,
-    shots=300,
-    steps=2000,
-    random_number_generator_seed=123321,
+    num_states=300,
+    num_temperature_steps=2000,
+    seed=123321,
     description="Max-cut",
 )
 print(f"Solution: {s}  cost: {cost}")

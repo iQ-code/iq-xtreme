@@ -25,43 +25,43 @@ def _validate_QUDO_vector(vector: NDArray[np.float64] | None, max_dimension: int
 
 
 def solve_QUDO(
-    matrix: NDArray[np.float64],
-    vector: NDArray[np.float64] | None = None,
-    min_n: NDArray[np.float64] | None = None,
-    max_n: NDArray[np.float64] | None = None,
-    shots: int = 100,
-    steps: int = 1000,
-    random_number_generator_seed: int = 0,
+    P: NDArray[np.float64],
+    q: NDArray[np.float64] | None = None,
+    x_lb: NDArray[np.float64] | None = None,
+    x_ub: NDArray[np.float64] | None = None,
+    num_states: int = 100,
+    num_annealing_steps: int = 1000,
+    seed: int = 0,
     description: str = "",
 ) -> tuple[NDArray[np.int32], float]:
     """Solve a QUDO problem.
 
     The QUDO problem minimizes:
 
-        E(n) = (1/2) n^T Q n + v^T n
+        E(x) = (1/2) x^T P x + q^T x
 
-    where n is a vector of integers, bounded element-wise by min_n and max_n
+    where x is a vector of integers, bounded element-wise by x_lb and x_ub
     when they are given.
 
     Parameters
     ----------
-    matrix : NDArray[np.float64]
-        Real, square matrix Q for the QUDO problem.
+    P : NDArray[np.float64]
+        Real, square matrix P for the QUDO problem.
         Maximum supported size: 2048 x 2048.
-    vector : NDArray[np.float64] | None, default=None
-        Real linear vector v for the QUDO problem. If None, the linear term
+    q : NDArray[np.float64] | None, default=None
+        Real linear vector q for the QUDO problem. If None, the linear term
         is omitted.
-    min_n : NDArray[np.float64] | None, default=None
+    x_lb : NDArray[np.float64] | None, default=None
         Element-wise lower bounds on the integer solution vector. If None,
         there is no lower limit.
-    max_n : NDArray[np.float64] | None, default=None
+    x_ub : NDArray[np.float64] | None, default=None
         Element-wise upper bounds on the integer solution vector. If None,
         there is no upper limit.
-    shots : int, default = 100
+    num_states : int, default = 100
         Number of stochastic trajectories to explore.
-    steps : int, default=1000
+    num_annealing_steps : int, default=1000
         Number of algorithm steps.
-    random_number_generator_seed : int, default=0
+    seed : int, default=0
         Seed for the random number generator.
     description : str, default=""
         Descriptive name of the computation.
@@ -69,30 +69,30 @@ def solve_QUDO(
     Returns
     -------
     s : NDArray[np.int32]
-        Vector of integer values that minimize E(n).
+        Vector of integer values that minimize E(x).
     E : float
         Minimum value of the QUDO cost function.
 
     """
     json_args = {
         "algorithm": "sa",
-        "P": _validate_QUDO_matrix(matrix, 2048),
+        "P": _validate_QUDO_matrix(P, 2048),
         "options": {
-            "num_states": validate.integer(shots, 1, 1000),
-            "num_annealing_steps": validate.integer(steps, 1, 10000),
+            "num_states": validate.integer(num_states, 1, 1000),
+            "num_annealing_steps": validate.integer(num_annealing_steps, 1, 10000),
         },
-        "seed": validate.integer(random_number_generator_seed, 0, 0xFFFFFFFF),
+        "seed": validate.integer(seed, 0, 0xFFFFFFFF),
         "description": validate.string(description),
     }
 
-    if vector is not None:
-        json_args |= {"q": _validate_QUDO_vector(vector, 2048)}
+    if q is not None:
+        json_args |= {"q": _validate_QUDO_vector(q, 2048)}
 
-    if min_n is not None:
-        json_args |= {"x_lb": _validate_QUDO_vector(min_n, 2048)}
+    if x_lb is not None:
+        json_args |= {"x_lb": _validate_QUDO_vector(x_lb, 2048)}
 
-    if max_n is not None:
-        json_args |= {"x_ub": _validate_QUDO_vector(max_n, 2048)}
+    if x_ub is not None:
+        json_args |= {"x_ub": _validate_QUDO_vector(x_ub, 2048)}
 
     r = iqrestapi.post("v1/iq-xtreme/qudo", json=json_args)
     return r["solution"], r["cost"]

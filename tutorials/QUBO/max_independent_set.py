@@ -176,7 +176,7 @@ Q = compute_maxindset_qubo_matrix(G)
 # ### Solving QUBO problem with iQ-Xtreme
 
 # %%
-x, cost = iq.optim.qubo.solve_QUBO(Q, shots=10, steps=3000)
+x, cost = iq.optim.qubo.solve_QUBO(Q, num_states=10, num_temperature_steps=3000)
 print("MIS size:", -cost)
 x_array = np.array(x)
 print("Check cost function:", -x_array.T @ Q @ x_array)
@@ -230,7 +230,7 @@ def compare_random_sizes(minimum_size=5, maximum_size=100, num_reads=10, lmbda=N
     maximum_size : int, optional
         Maximum graph size to test (exclusive). Default is 100.
     num_reads : int, optional
-        Number of shots for the iQ-Xtreme solver. Default is 10.
+        Number of states (num_states) for the iQ-Xtreme solver. Default is 10.
     lmbda : float, optional
         Penalty coefficient. Defaults to the number of nodes in each graph.
     """
@@ -247,7 +247,7 @@ def compare_random_sizes(minimum_size=5, maximum_size=100, num_reads=10, lmbda=N
         list_indset_networkx.append(len(networkx_sol) / size)
 
         Q = compute_maxindset_qubo_matrix(G, lmbda=1.5)
-        iq_sol, _ = iq.optim.qubo.solve_QUBO(Q, shots=min(100, size * 2))
+        iq_sol, _ = iq.optim.qubo.solve_QUBO(Q, num_states=min(100, size * 2))
         cost = np.count_nonzero(np.array(iq_sol) == 1)
         list_s_iq.append(cost / size)
 

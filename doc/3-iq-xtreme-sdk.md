@@ -97,7 +97,7 @@ Q = np.array([
     [ 0.0,  1.0,  1.0, -2.0],
 ])
 
-s, cost = iq.optim.qubo.solve_QUBO(Q, shots=300, steps=2000, description="Max-cut")
+s, cost = iq.optim.qubo.solve_QUBO(Q, num_states=300, num_temperature_steps=2000, description="Max-cut")
 print("Solution:", s, "  Cost:", cost)
 ```
 
@@ -112,19 +112,19 @@ import iq.optim.qudo
 
 iq.api.iqrestapi.initialize_credentials("YOUR_API_KEY")
 
-# Minimize (1/2) n^T Q n + v^T n over integers between min_n and max_n
-Q = np.array([
+# Minimize (1/2) x^T P x + q^T x over integers between x_lb and x_ub
+P = np.array([
     [ 4.0, -2.0],
     [-2.0,  3.0],
 ])
-v = np.array([-1.0, -1.0])
-min_n = np.array([0.0, 0.0])
-max_n = np.array([5.0, 5.0])
+q = np.array([-1.0, -1.0])
+x_lb = np.array([0.0, 0.0])
+x_ub = np.array([5.0, 5.0])
 
 s, cost = iq.optim.qudo.solve_QUDO(
-    Q, vector=v, 
-    min_n=min_n, max_n=max_n,
-    shots=100, steps=2000,
+    P, q=q,
+    x_lb=x_lb, x_ub=x_ub,
+    num_states=100, num_annealing_steps=2000,
     description="QUDO example"
 )
 print("Solution:", s, "  Cost:", cost)
@@ -153,7 +153,7 @@ Q = np.array([
 Q = (Q + Q.T) / 2  # ensure symmetry
 
 s, cost = iq.optim.quco.solve_QUCO(
-    Q, k=3, shots=100, steps=100, description="Graph partition"
+    Q, k=3, num_states=100, num_temperature_steps=100, description="Graph partition"
 )
 print("Category assignments:", s, "  Cost:", cost)
 ```
@@ -184,7 +184,7 @@ ub = np.array([1.0])
 
 w, cost = iq.optim.ccqp.solve_CCQP(
     P, q, k=2,
-    x_min=0.05, x_max=0.60,
+    x_lb=0.05, x_ub=0.60,
     A=A, lb=lb, ub=ub,
     description="2-asset portfolio"
 )
@@ -213,7 +213,7 @@ D = np.array([
 ], dtype=float)
 
 tour, total_dist = iq.optim.tsp.solve_TSP(
-    D, steps=2000, shots=200, circular=True, description="6-city TSP"
+    D, num_annealing_steps=2000, num_states=200, circular=True, description="6-city TSP"
 )
 print("Tour:", tour, "  Total distance:", total_dist)
 ```

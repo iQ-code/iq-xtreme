@@ -19,9 +19,9 @@ def _validate_QUCO_matrix(Q: NDArray[np.float64], max_dim: int) -> list:
 def solve_QUCO(
     Q: NDArray[np.float64],
     k: int,
-    shots: int = 100,
-    steps: int = 100,
-    random_number_generator_seed: int = 0,
+    num_states: int = 100,
+    num_temperature_steps: int = 100,
+    seed: int = 0,
     description: str = "",
 ) -> tuple[NDArray[np.int32], float]:
     """Solve a Quadratic Unconstrained Category Optimization (QUCO) problem.
@@ -49,11 +49,11 @@ def solve_QUCO(
     k : int
         Number of categories (partitions) to split the elements into.
         Must satisfy 2 <= k <= n - 1.
-    shots : int, default = 100
+    num_states : int, default = 100
         Number of stochastic trajectories to explore.
-    steps : int, default = 100
+    num_temperature_steps : int, default = 100
         Number of algorithm steps.
-    random_number_generator_seed : int, default=0
+    seed : int, default=0
         Seed for the random number generator.
     description : str, default=""
         Descriptive name of the computation.
@@ -68,8 +68,8 @@ def solve_QUCO(
 
     """
     options = {
-        "num_states": validate.integer(shots, 1, 500),
-        "num_temperature_steps": validate.integer(steps, 1, 1000),
+        "num_states": validate.integer(num_states, 1, 500),
+        "num_temperature_steps": validate.integer(num_temperature_steps, 1, 1000),
     }
 
     r = iqrestapi.post(
@@ -77,7 +77,7 @@ def solve_QUCO(
         json={
             "Q": _validate_QUCO_matrix(Q, 10_000),
             "k": validate.integer(k, 2, np.asarray(Q).shape[1] - 1),
-            "seed": validate.integer(random_number_generator_seed, 0, 0xFFFFFFFF),
+            "seed": validate.integer(seed, 0, 0xFFFFFFFF),
             "options": options,
             "description": validate.string(description),
         },

@@ -43,13 +43,13 @@ w, cost = iq.optim.ccqp.solve_CCQP(
     P,
     q,
     k=3,
-    x_min=0.05,
-    x_max=0.40,
+    x_lb=0.05,
+    x_ub=0.40,
     A=A_constraint,
     lb=lb,
     ub=ub,
-    shots=100,
-    random_number_generator_seed=123321,
+    num_states=100,
+    seed=123321,
     description="3-asset portfolio selection",
 )
 

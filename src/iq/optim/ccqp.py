@@ -44,15 +44,15 @@ def solve_CCQP(
     P: NDArray[np.float64],
     q: NDArray[np.float64],
     k: int,
-    x_min: float = 0.0,
-    x_max: float = 1.0,
+    x_lb: float = 0.0,
+    x_ub: float = 1.0,
     A: NDArray[np.float64] | None = None,
     lb: NDArray[np.float64] | None = None,
     ub: NDArray[np.float64] | None = None,
-    shots: int = 30,
-    steps: int = 100,
-    tol: float = 1e-5,
-    random_number_generator_seed: int = 0,
+    num_states: int = 30,
+    num_temperature_steps: int = 100,
+    admm_eps: float = 1e-5,
+    seed: int = 0,
     description: str = "",
 ) -> tuple[NDArray[np.float64], float]:
     """Solve a Cardinality Constrained Quadratic Programming (CCQP) problem.
@@ -61,7 +61,7 @@ def solve_CCQP(
 
         min_{w}   (1/2) w^T P w + q^T w
         with      w_i = n_i * x_i
-                  x_i in [x_min, x_max]   (continuous part)
+                  x_i in [x_lb, x_ub]     (continuous part)
                   n_i in {0, 1}           (binary selection part)
         s.t.      sum_i n_i = k           (cardinality constraint)
 
@@ -82,9 +82,9 @@ def solve_CCQP(
     k : int
         Number of non-zero elements in the solution vector (cardinality).
         Must satisfy 1 <= k <= len(P).
-    x_min : float, default=0.0
+    x_lb : float, default=0.0
         Minimum value for the continuous variables x_i.
-    x_max : float, default=1.0
+    x_ub : float, default=1.0
         Maximum value for the continuous variables x_i.
     A : NDArray[np.float64] | None, default=None
         Constraint matrix for linear inequalities (shape: m x n).
@@ -95,13 +95,13 @@ def solve_CCQP(
     ub : NDArray[np.float64] | None, default=None
         Upper bounds vector for the linear constraints: A w <= ub.
         Length must equal the number of rows in A.
-    shots : int, default = 30
+    num_states : int, default = 30
         Number of stochastic trajectories to explore.
-    steps : int, default = 100
+    num_temperature_steps : int, default = 100
         Number of algorithm steps.
-    tol : float, default = 1e-5
+    admm_eps : float, default = 1e-5
         Relative error criterion to stop the inner quadratic programming solver.
-    random_number_generator_seed : int, default=0
+    seed : int, default=0
         Seed for the random number generator.
     description : str, default=""
         Descriptive name of the computation.
@@ -115,9 +115,9 @@ def solve_CCQP(
 
     """
     options = {
-        "num_states": validate.integer(shots, 1, 500),
-        "num_temperature_steps": validate.integer(steps, 1, 1000),
-        "admm_eps": validate.real(tol, min_value=1e-9),
+        "num_states": validate.integer(num_states, 1, 500),
+        "num_temperature_steps": validate.integer(num_temperature_steps, 1, 1000),
+        "admm_eps": validate.real(admm_eps, min_value=1e-9),
     }
 
     MAX_VALID_SIZE = 16_384  # 2^14.
@@ -125,10 +125,10 @@ def solve_CCQP(
         "P": _validate_CCQP_matrix(P, MAX_VALID_SIZE),
         "q": _validate_CCQP_vector(q, MAX_VALID_SIZE),
         "k": validate.integer(k, 1, np.asarray(P).shape[0]),
-        "x_lb": validate.real(x_min),
-        "x_ub": validate.real(x_max),
+        "x_lb": validate.real(x_lb),
+        "x_ub": validate.real(x_ub),
         "options": options,
-        "seed": validate.integer(random_number_generator_seed, 0, 0xFFFFFFFF),
+        "seed": validate.integer(seed, 0, 0xFFFFFFFF),
         "description": validate.string(description),
     }
 
