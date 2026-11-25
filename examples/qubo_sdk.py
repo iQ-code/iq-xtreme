@@ -4,12 +4,12 @@ This example demonstrates how to encode a maximum cut problem as a QUBO
 and solves it.
 
 The Max-Cut problem partitions graph nodes into two sets (0 and 1) to
-maximize the number of edges crossing the partition. It is encoded as:
+maximize the number of edges crossing the partition. An edge (i,j) is cut
+when s_i + s_j - 2 s_i s_j = 1, so minus the number of cut edges is:
 
-    min  s^T Q s   with  Q_ij = -1 if (i,j) is an edge, else 0
+    s^T Q s   with  Q_ij = Q_ji = 1 if (i,j) is an edge,  Q_ii = -degree(i)
 
-so that each edge (i,j) with s_i != s_j contributes -1 to the cost
-(lower cost = more cuts).
+because s_i^2 = s_i for binary s (lower cost = more cuts).
 """
 
 import numpy as np
@@ -25,8 +25,10 @@ n = 4
 Q = np.zeros((n, n))
 edges = [(0, 1), (0, 2), (1, 3), (2, 3)]
 for i, j in edges:
-    Q[i, j] -= 1.0
-    Q[j, i] -= 1.0
+    Q[i, j] += 1.0
+    Q[j, i] += 1.0
+    Q[i, i] -= 1.0
+    Q[j, j] -= 1.0
 
 print("QUBO matrix:")
 print(Q)

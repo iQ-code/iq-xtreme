@@ -63,7 +63,7 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/qubo
 
 ### Problem Definition
 
-The QUDO problem generalizes QUBO to non-negative integer variables:
+The QUDO problem generalizes QUBO to integer variables:
 
 $$
 \min_{x \in \mathbb{Z}^d} E(x) = \frac{1}{2} x^T P x + q^T x

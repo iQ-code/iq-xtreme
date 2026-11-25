@@ -1,8 +1,8 @@
 """QUDO solver example using the iQ-Xtreme SDK.
 
-This example minimizes a quadratic function over non-negative integers:
+This example minimizes a quadratic function over integers:
 
-    E(n) = n^T Q n + v^T n
+    E(n) = (1/2) n^T Q n + v^T n
 
 with element-wise bounds:  min_n[i] <= n[i] <= max_n[i].
 """
@@ -48,5 +48,5 @@ print(f"Solution: {s}  cost: {cost:.6f}")
 
 # --- Manual verification ---
 s = np.array(s)
-cost_manual = float(s @ Q @ s + v @ s)
+cost_manual = float(0.5 * s @ Q @ s + v @ s)
 print(f"\nManual cost check: {cost_manual:.6f}")

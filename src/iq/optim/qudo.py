@@ -38,9 +38,10 @@ def solve_QUDO(
 
     The QUDO problem minimizes:
 
-        E(n) = n^T Q n + v^T n
+        E(n) = (1/2) n^T Q n + v^T n
 
-    where n is a vector of non-negative integers.
+    where n is a vector of integers, bounded element-wise by min_n and max_n
+    when they are given.
 
     Parameters
     ----------
@@ -51,9 +52,11 @@ def solve_QUDO(
         Real linear vector v for the QUDO problem. If None, the linear term
         is omitted.
     min_n : NDArray[np.float64] | None, default=None
-        Element-wise lower bounds on the integer solution vector.
+        Element-wise lower bounds on the integer solution vector. If None,
+        there is no lower limit.
     max_n : NDArray[np.float64] | None, default=None
-        Element-wise upper bounds on the integer solution vector.
+        Element-wise upper bounds on the integer solution vector. If None,
+        there is no upper limit.
     shots : int, default = 100
         Number of stochastic trajectories to explore.
     steps : int, default=1000
@@ -66,7 +69,7 @@ def solve_QUDO(
     Returns
     -------
     s : NDArray[np.int32]
-        Vector of non-negative integer values that minimize E(n).
+        Vector of integer values that minimize E(n).
     E : float
         Minimum value of the QUDO cost function.
 

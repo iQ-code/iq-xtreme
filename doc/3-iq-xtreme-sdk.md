@@ -88,12 +88,13 @@ import iq.optim.qubo
 
 iq.api.iqrestapi.initialize_credentials("YOUR_API_KEY")
 
-# A 4-variable max-cut problem encoded as QUBO
+# A 4-node max-cut problem encoded as QUBO, with edges (0,1), (0,2), (1,3), (2,3).
+# Minimizing s^T Q s minimizes minus the number of cut edges.
 Q = np.array([
-    [ 2.0, -1.0, -1.0,  0.0],
-    [-1.0,  2.0,  0.0, -1.0],
-    [-1.0,  0.0,  2.0, -1.0],
-    [ 0.0, -1.0, -1.0,  2.0],
+    [-2.0,  1.0,  1.0,  0.0],
+    [ 1.0, -2.0,  0.0,  1.0],
+    [ 1.0,  0.0, -2.0,  1.0],
+    [ 0.0,  1.0,  1.0, -2.0],
 ])
 
 s, cost = iq.optim.qubo.solve_QUBO(Q, shots=300, steps=2000, description="Max-cut")
@@ -111,7 +112,7 @@ import iq.optim.qudo
 
 iq.api.iqrestapi.initialize_credentials("YOUR_API_KEY")
 
-# Minimize n^T Q n + v^T n over non-negative integers, with bounds
+# Minimize (1/2) n^T Q n + v^T n over integers between min_n and max_n
 Q = np.array([
     [ 4.0, -2.0],
     [-2.0,  3.0],
