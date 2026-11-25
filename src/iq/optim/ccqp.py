@@ -76,7 +76,7 @@ def solve_CCQP(
     ----------
     P : NDArray[np.float64]
         Real, symmetric positive-definite square matrix for the quadratic term.
-        Maximum supported size: 2048 x 2048.
+        Maximum supported size: 16384 x 16384.
     q : NDArray[np.float64]
         Real vector for the linear term. Must have the same length as P.
     k : int
@@ -120,9 +120,10 @@ def solve_CCQP(
         "admm_eps": validate.real(tol, min_value=1e-9),
     }
 
+    MAX_VALID_SIZE = 16_384  # 2^14.
     json_args = {
-        "P": _validate_CCQP_matrix(P, 2048),
-        "q": _validate_CCQP_vector(q, 2048),
+        "P": _validate_CCQP_matrix(P, MAX_VALID_SIZE),
+        "q": _validate_CCQP_vector(q, MAX_VALID_SIZE),
         "k": validate.integer(k, 1, np.asarray(P).shape[0]),
         "x_lb": validate.real(x_min),
         "x_ub": validate.real(x_max),
@@ -132,13 +133,13 @@ def solve_CCQP(
     }
 
     if A is not None:
-        json_args |= {"A": _validate_matrix(A, 2048, 2048)}
+        json_args |= {"A": _validate_matrix(A, MAX_VALID_SIZE, MAX_VALID_SIZE)}
 
     if lb is not None:
-        json_args |= {"lb": _validate_CCQP_vector(lb, 2048)}
+        json_args |= {"lb": _validate_CCQP_vector(lb, MAX_VALID_SIZE)}
 
     if ub is not None:
-        json_args |= {"ub": _validate_CCQP_vector(ub, 2048)}
+        json_args |= {"ub": _validate_CCQP_vector(ub, MAX_VALID_SIZE)}
 
     r_post = iqrestapi.post(
         "v1/iq-xtreme/ccqp",
