@@ -30,8 +30,8 @@ print()
 # --- Solve TSP (circular tour) ---
 tour, dist = iq.optim.tsp.solve_TSP(
     distances,
-    steps=5000,
-    shots=300,
+    num_annealing_steps=5000,
+    num_states=300,
     circular=True,
     description="10-city TSP",
 )

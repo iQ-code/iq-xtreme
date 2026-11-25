@@ -45,16 +45,39 @@ def set_auth(auth):
     return
 
 
-def post(*args, **kwargs):
+class APIError(requests.HTTPError, ConnectionError):
+    """Error answered by the Inspiration-Q API: a rejected request or a failed computation.
+
+    It subclasses requests.HTTPError and ConnectionError in every Inspiration-Q SDK, so
+    callers can catch API errors with either type.
+
+    Attributes
+    ----------
+    description : str
+        Reason given by the API.
+    computation_id : str or None
+        ID of the failed computation, if the API had created one.
+    response : requests.Response or None
+        HTTP response of a rejected request.
+    """
+
+    def __init__(self, message, description="", computation_id=None, response=None):
+        super().__init__(message, response=response)
+        self.description = description
+        self.computation_id = computation_id
+
+
+def post(function, *args, **kwargs):
     """Send a POST request to the Inspiration-Q API and return the response.
 
     Wraps _post with the global base URL, URL dictionary, and auth headers.
-    Raises an exception if the response contains an error.
 
     Parameters
     ----------
+    function : str
+        API endpoint name (key in the URL dictionary).
     *args
-        Positional arguments forwarded to _post (first is the function name).
+        Positional arguments forwarded to _post after the function name.
     **kwargs
         Keyword arguments forwarded to _post (e.g., json payload).
 
@@ -65,12 +88,22 @@ def post(*args, **kwargs):
 
     Raises
     ------
-    RuntimeError
-        If the API returns an exception field in the response body.
+    APIError
+        If the API rejects the request, returns an exception field in the response body,
+        or the computation fails.
     """
-    r_json = _post(_base_url, _state.url_dict, _state.auth, *args, **kwargs)
+    r_json = _post(_base_url, _state.url_dict, _state.auth, function, *args, **kwargs)
     if "exception" in r_json:
-        raise RuntimeError(r_json["exception"])
+        raise APIError(r_json["exception"], str(r_json["exception"]))
+    if r_json.get("status") == "Failed":
+        description = r_json.get("error_description") or "The API gave no error description."
+        computation_id = r_json.get("computationId")
+        raise APIError(
+            f"Computation {computation_id} of the Inspiration-Q API function {function} failed:"
+            f" {description}",
+            description,
+            computation_id,
+        )
     return r_json
 
 
@@ -93,15 +126,43 @@ def _get(url, headers, **arguments):
 
     Raises
     ------
-    ConnectionError
+    APIError
         If the HTTP response indicates an error.
     """
     logger.debug(f"Sending GET request to {url} with headers {headers} and arguments {arguments}")
     r = requests.get(url=url, headers=headers, timeout=_HTTP_TIMEOUT, **arguments)
     logger.debug(f"Received GET response {r} with content: {r.content}")
     if not r.ok:
-        raise ConnectionError(f"Error returned from Inspiration-Q API: {r}")
+        reason = _error_reason(r)
+        raise APIError(
+            f"Error returned from Inspiration-Q API: {r}. {reason}".rstrip(), reason, response=r
+        )
     return r.json()
+
+
+def _error_reason(r):
+    """Return the reason the API gave in an error answer.
+
+    Parameters
+    ----------
+    r : requests.Response
+        Unsuccessful HTTP response from the API.
+
+    Returns
+    -------
+    str
+        Title and detail of the RFC 9110 problem details object the API answers errors
+        with, or the raw body if it is not one.
+    """
+    try:
+        body = r.json()
+    except ValueError:
+        return r.text.strip()
+    if not isinstance(body, dict):
+        return str(body)
+    # The API answers errors with an RFC 9110 problem details object.
+    reason = ": ".join(str(body[k]) for k in ("title", "detail") if body.get(k))
+    return reason or str(body)
 
 
 def _post(base_url, url_dict, auth, function, waittime=1, **arguments):
@@ -135,7 +196,7 @@ def _post(base_url, url_dict, auth, function, waittime=1, **arguments):
     ------
     ValueError
         If the function name is not in the known URL dictionary.
-    ConnectionError
+    APIError
         If the API returns an HTTP error response.
     TimeoutError
         If the computation exceeds the maximum allowed time.
@@ -151,8 +212,12 @@ def _post(base_url, url_dict, auth, function, waittime=1, **arguments):
     r = requests.post(url=url, headers=headers, timeout=_HTTP_TIMEOUT, **arguments)
     logger.debug(f"Received POST response {r} with content: {r.content}")
     if not r.ok:
-        raise ConnectionError(
-            f"Error returned from Inspiration-Q API. function: {function}. response: {r}"
+        reason = _error_reason(r)
+        raise APIError(
+            f"Error returned from Inspiration-Q API. function: {function}. response: {r}."
+            f" {reason}".rstrip(),
+            reason,
+            response=r,
         )
 
     body = r.json()

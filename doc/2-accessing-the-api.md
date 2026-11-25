@@ -23,15 +23,14 @@ curl -X POST https://www.inspiration-q.com/api/v1/iq-xtreme/qubo \
      -H "Ocp-Apim-Subscription-Key: <your-api-key>" \
      -d '{
   "algorithm": "sa",
-  "matrix": [
+  "Q": [
     [0.0, -1.0, -1.0, 0.0],
     [-1.0, 0.0, 0.0, -1.0],
     [-1.0, 0.0, 0.0, -1.0],
     [0.0, -1.0, -1.0, 0.0]
   ],
-  "shots": 200,
-  "steps": 1000,
-  "random_number_generator_seed": 123321,
+  "options": {"num_states": 200, "num_temperature_steps": 1000},
+  "seed": 123321,
   "description": "Small QUBO example"
 }'
 ```
@@ -67,8 +66,7 @@ curl -X POST https://www.inspiration-q.com/api/v1/iq-xtreme/tsp \
     [15, 7, 0, 8],
     [6, 3, 12, 0]
   ],
-  "steps": 2000,
-  "shots": 100,
+  "options": {"num_states": 100, "num_annealing_steps": 2000},
   "circular": true,
   "description": "4-city TSP"
 }'
@@ -83,14 +81,14 @@ curl -X POST https://www.inspiration-q.com/api/v1/iq-xtreme/qudo \
      -H "Ocp-Apim-Subscription-Key: <your-api-key>" \
      -d '{
   "algorithm": "sa",
-  "matrix": [
+  "P": [
     [2.0, 1.0, 0.0],
     [1.0, 3.0, 1.0],
     [0.0, 1.0, 2.0]
   ],
-  "vector": [-4.0, -6.0, -4.0],
-  "beta_steps": 1000,
-  "random_number_generator_seed": 123321,
+  "q": [-4.0, -6.0, -4.0],
+  "options": {"num_annealing_steps": 1000},
+  "seed": 123321,
   "description": "Small QUDO example"
 }'
 ```
@@ -110,8 +108,8 @@ curl -X POST https://www.inspiration-q.com/api/v1/iq-xtreme/quco \
     [1.0, 2.0, 1.0, 0.0]
   ],
   "k": 2,
-  "options": {"copies": 100},
-  "random_number_generator_seed": 123321,
+  "options": {"num_states": 100},
+  "seed": 123321,
   "description": "Small QUCO example"
 }'
 ```
@@ -127,8 +125,8 @@ curl -X POST https://www.inspiration-q.com/api/v1/iq-xtreme/ccqp \
   "P": [[2.0, 0.5], [0.5, 1.0]],
   "q": [-1.0, -0.5],
   "k": 1,
-  "x_min": 0.0,
-  "x_max": 1.0,
+  "x_lb": 0.0,
+  "x_ub": 1.0,
   "description": "Small CCQP example"
 }'
 ```
@@ -158,15 +156,14 @@ HEADERS = {
 # QUBO payload
 payload = {
     "algorithm": "sa",
-    "matrix": [
+    "Q": [
         [0.0, -1.0, -1.0, 0.0],
         [-1.0, 0.0, 0.0, -1.0],
         [-1.0, 0.0, 0.0, -1.0],
         [0.0, -1.0, -1.0, 0.0]
     ],
-    "shots": 200,
-    "steps": 1000,
-    "random_number_generator_seed": 123321,
+    "options": {"num_states": 200, "num_temperature_steps": 1000},
+    "seed": 123321,
     "description": "QUBO example without SDK"
 }
 

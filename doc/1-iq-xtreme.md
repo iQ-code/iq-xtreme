@@ -44,10 +44,10 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/qubo
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `matrix` | array | Square matrix Q |
-| `shots` | integer | Number of trajectories |
-| `steps` | integer | Steps per trajectory |
-| `random_number_generator_seed` | integer | RNG seed |
+| `Q` | array | Square matrix Q |
+| `options.num_states` | integer | Number of states (independent trajectories) |
+| `options.num_temperature_steps` | integer | Temperature steps per state |
+| `seed` | integer | RNG seed, an unsigned 32-bit integer (default: `0`). It is a field of the request, not an option |
 | `description` | string | Optional label |
 
 ### Output Parameters
@@ -63,16 +63,16 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/qubo
 
 ### Problem Definition
 
-The QUDO problem generalizes QUBO to non-negative integer variables:
+The QUDO problem generalizes QUBO to integer variables:
 
 $$
-\min_{n \in \mathbb{Z}_{\geq 0}^d} E(n) = n^T Q n + v^T n
+\min_{x \in \mathbb{Z}^d} E(x) = \frac{1}{2} x^T P x + q^T x
 $$
 
-where $Q$ is a real $d \times d$ matrix, $v$ is an optional real linear vector, and $n$ is a vector of non-negative integers. The variables may also be bounded element-wise:
+where $P$ is a real $d \times d$ matrix, $q$ is an optional real linear vector, and $x$ is a vector of integers. The variables may also be bounded element-wise:
 
 $$
-\min_n^{(i)} \leq n_i \leq \max_n^{(i)}
+x_{lb}^{(i)} \leq x_i \leq x_{ub}^{(i)}
 $$
 
 QUDO naturally models problems with discrete but non-binary decision variables, such as resource allocation, frequency assignment, and multi-level coding problems.
@@ -93,21 +93,21 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/qudo
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `matrix` | array | Square matrix Q |
-| `vector` | array (optional) | Linear vector v |
-| `min_n` | array (optional) | Element-wise lower bounds |
-| `max_n` | array (optional) | Element-wise upper bounds |
-| `shots` | integer | Number of trajectories |
-| `steps` | integer | Number of algorithm steps |
-| `random_number_generator_seed` | integer | RNG seed |
+| `P` | array | Square matrix P |
+| `q` | array (optional) | Linear vector q |
+| `x_lb` | array (optional) | Element-wise lower bounds of x |
+| `x_ub` | array (optional) | Element-wise upper bounds of x |
+| `options.num_states` | integer | Number of states (independent trajectories) |
+| `options.num_annealing_steps` | integer | Number of annealing steps |
+| `seed` | integer | RNG seed, an unsigned 32-bit integer (default: `0`). It is a field of the request, not an option |
 | `description` | string | Optional label |
 
 ### Output Parameters
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `solution` | array | Non-negative integer vector minimizing E(n) |
-| `cost` | float | Minimum value of E(n) |
+| `solution` | array | Integer vector minimizing E(x) |
+| `cost` | float | Minimum value of E(x) |
 
 ---
 
@@ -143,9 +143,9 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/quco
 |-------|------|-------------|
 | `Q` | array | Symmetric square matrix |
 | `k` | integer | Number of categories ($2 \leq k \leq n-1$) |
-| `shots` | integer | Number of trajectories (default: 100) |
-| `steps` | integer | Number of algorithm steps (default: 100) |
-| `random_number_generator_seed` | integer | RNG seed |
+| `options.num_states` | integer | Number of states (independent trajectories) (default: 100) |
+| `options.num_temperature_steps` | integer | Number of temperature steps (default: 100) |
+| `seed` | integer | RNG seed, an unsigned 32-bit integer (default: `0`). It is a field of the request, not an option |
 | `description` | string | Optional label |
 
 ### Output Parameters
@@ -167,7 +167,7 @@ $$
 \min_{w} \quad \frac{1}{2} w^T P w + q^T w
 $$
 $$
-\text{with} \quad w_i = n_i x_i, \quad x_i \in [x_{\min}, x_{\max}], \quad n_i \in \{0, 1\}
+\text{with} \quad w_i = n_i x_i, \quad x_i \in [x_{lb}, x_{ub}], \quad n_i \in \{0, 1\}
 $$
 $$
 \text{s.t.} \quad \sum_i n_i = k
@@ -200,15 +200,15 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/ccqp
 | `P` | array | Symmetric positive-definite matrix |
 | `q` | array | Linear vector |
 | `k` | integer | Cardinality (number of nonzero elements) |
-| `x_min` | float | Lower bound for continuous variables (default: 0.0) |
-| `x_max` | float | Upper bound for continuous variables (default: 1.0) |
+| `x_lb` | float | Lower bound for continuous variables (default: 0.0) |
+| `x_ub` | float | Upper bound for continuous variables (default: 1.0) |
 | `A` | array (optional) | Linear constraint matrix |
 | `lb` | array (optional) | Lower bounds for A w |
 | `ub` | array (optional) | Upper bounds for A w |
-| `shots` | integer | Number of heuristic trajectories |
-| `steps` | integer | Number of algorithm steps |
-| `tol` | float | Continuous quadratic programming solver tolerance |
-| `random_number_generator_seed` | integer | RNG seed |
+| `options.num_states` | integer | Number of states (heuristic trajectories) |
+| `options.num_temperature_steps` | integer | Number of temperature steps |
+| `options.admm_eps` | float | Convergence tolerance of the continuous quadratic programming solver |
+| `seed` | integer | RNG seed, an unsigned 32-bit integer (default: `0`). It is a field of the request, not an option |
 | `description` | string | Optional label |
 
 ### Output Parameters
@@ -253,8 +253,8 @@ POST https://www.inspiration-q.com/api/v1/iq-xtreme/tsp
 | Field | Type | Description |
 |-------|------|-------------|
 | `distances` | array | Square distance matrix |
-| `steps` | integer | Steps per trajectory |
-| `shots` | integer | Number of trajectories |
+| `options.num_states` | integer | Number of states (trajectories) |
+| `options.num_annealing_steps` | integer | Annealing steps per state |
 | `circular` | boolean | True for Hamiltonian cycle, False for path |
 | `description` | string | Optional label |
 

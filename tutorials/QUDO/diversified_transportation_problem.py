@@ -236,7 +236,7 @@ nmin = np.zeros(dim, np.int32)
 nmax = (max(S) + 2) * np.ones(dim, np.int32)
 
 # %%
-n_opt, obj_opt = iq.optim.qudo.solve_QUDO(matrix=Q, vector=b, min_n=nmin, max_n=nmax, steps=2000)
+n_opt, obj_opt = iq.optim.qudo.solve_QUDO(P=Q, q=b, x_lb=nmin, x_ub=nmax, num_annealing_steps=2000)
 print("solution", n_opt)
 print("cost function", obj_opt)
 

@@ -180,7 +180,7 @@ np.allclose(q_matrix, Q)  # checking if the two obtained matrices are the same
 # Now that we have our QUBO matrix we can easily feed it into iQ-Xtreme to get a solution.
 
 # %%
-x, cost = iq.optim.qubo.solve_QUBO(Q, shots=10)
+x, cost = iq.optim.qubo.solve_QUBO(Q, num_states=10)
 print(f"Max Clique size: {-cost}")
 x_array = np.array(x)
 print(f"Check cost function: {-x_array.T @ Q @ x_array}")
@@ -275,7 +275,7 @@ def benchmark_vs_networkx(minimum_size=5, maximum_size=100, num_reads=100, lmbda
     maximum_size : int, optional
         Maximum graph size (exclusive) to benchmark. Default is 100.
     num_reads : int, optional
-        Number of shots for iQ-Xtreme solver. Default is 100.
+        Number of states (num_states) for the iQ-Xtreme solver. Default is 100.
     lmbda : float, optional
         Penalty coefficient for the QUBO formulation. Default is 1.
     """
@@ -287,7 +287,7 @@ def benchmark_vs_networkx(minimum_size=5, maximum_size=100, num_reads=100, lmbda
         G = nx.gnp_random_graph(i, 0.5, seed=None, directed=False)  # random graph of size i
         Q = build_maxclique_qubo_matrix(G, lmbda=lmbda)
 
-        x, cost = iq.optim.qubo.solve_QUBO(Q, shots=num_reads)
+        x, cost = iq.optim.qubo.solve_QUBO(Q, num_states=num_reads)
         if not is_valid_clique(G, x):
             wrong += 1
 
@@ -453,7 +453,7 @@ Q  # the Qubo matrix we get from a graph
 #
 
 # %%
-x, cost = iq.optim.qubo.solve_QUBO(Q, shots=10)
+x, cost = iq.optim.qubo.solve_QUBO(Q, num_states=10)
 print(f"Max weighted clique value: {-cost}")
 x_array = np.array(x)
 print(f"Check cost function: {-x_array.T @ Q @ x_array}")

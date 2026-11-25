@@ -42,9 +42,9 @@ print()
 labels, cost = iq.optim.quco.solve_QUCO(
     Q,
     k=k,
-    shots=100,
-    steps=100,
-    random_number_generator_seed=123321,
+    num_states=100,
+    num_temperature_steps=100,
+    seed=123321,
     description="Graph community detection",
 )
 

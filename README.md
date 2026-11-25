@@ -55,7 +55,7 @@ Q = np.array([
     [ 0.0, -1.0, -1.0,  2.0],
 ])
 
-s, cost = iq.optim.qubo.solve_QUBO(Q, shots=300, description="My first QUBO")
+s, cost = iq.optim.qubo.solve_QUBO(Q, num_states=300, description="My first QUBO")
 print("Solution:", s, "  Cost:", cost)
 ```
 

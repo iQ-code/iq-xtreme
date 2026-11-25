@@ -16,8 +16,8 @@ def _validate_TSP_matrix(matrix: NDArray[np.float64], max_dimension: int) -> lis
 
 def solve_TSP(
     distances: NDArray[np.float64],
-    steps: int = 2000,
-    shots: int = 300,
+    num_annealing_steps: int = 2000,
+    num_states: int = 300,
     circular: bool = False,
     description: str = "",
 ) -> tuple[NDArray[np.int32], float]:
@@ -36,10 +36,10 @@ def solve_TSP(
         Real, square matrix of shape (n, n) where distances[i, j] is the
         distance (or cost) of traveling from city i to city j.
         Maximum supported size: 2048 x 2048.
-    steps : int, default=2000
+    num_annealing_steps : int, default=2000
         Depth of each stochastic trajectory (between 1 and 10000). More
         steps allow each trajectory to explore more permutations.
-    shots : int, default=300
+    num_states : int, default=300
         Number of independent stochastic trajectories (between 1 and 500).
     circular : bool, default=False
         If True, the tour must return to the starting city (Hamiltonian cycle).
@@ -61,8 +61,10 @@ def solve_TSP(
         json={
             "algorithm": "sa",
             "distances": _validate_TSP_matrix(distances, 2048),
-            "steps": validate.integer(steps, 1, 10000),
-            "shots": validate.integer(shots, 1, 500),
+            "options": {
+                "num_states": validate.integer(num_states, 1, 500),
+                "num_annealing_steps": validate.integer(num_annealing_steps, 1, 10000),
+            },
             "circular": validate.boolean(circular),
             "description": validate.string(description),
         },
